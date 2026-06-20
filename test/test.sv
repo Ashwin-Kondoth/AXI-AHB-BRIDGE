@@ -1,0 +1,71 @@
+class base_test extends uvm_test;
+
+	`uvm_component_utils(base_test)
+	
+	function new(string name = "base_test",uvm_component parent);
+		super.new(name,parent);
+	endfunction
+
+	env envh;
+	
+	env_config cfg;
+	ahb_config ahb_cfg[];
+	axi_config axi_cfg[];
+	
+	bit has_ahb_agent = 1;
+	bit has_axi_agent = 1;
+	
+	int unsigned num_ahb_agent = 1;
+	int unsigned num_axi_agent = 1;
+
+	bit has_scoreboard = 1;
+	
+	extern function void build_phase(uvm_phase phase);
+	extern function void configure_env;
+	extern function void end_of_elaboration_phase(uvm_phase phase);
+
+endclass : base_test
+
+function void base_test::build_phase(uvm_phase phase);
+	cfg = env_config::type_id::create("cfg");
+	if(has_ahb_agent)
+		begin
+			ahb_cfg = new[num_ahb_agent];
+			cfg.ahb_cfg = new[num_ahb_agent];
+			foreach(ahb_cfg[i])
+				begin
+					ahb_cfg[i] = ahb_config::type_id::create($sformatf("ahb_cfg[%0d]",i),this);
+					ahb_cfg[i].is_active = UVM_ACTIVE;
+					cfg.ahb_cfg[i] = ahb_cfg[i];
+				end
+		end
+
+	if(has_axi_agent)
+		begin
+			axi_cfg = new[num_axi_agent];
+			cfg.axi_cfg = new[num_axi_agent];
+			foreach(axi_cfg[i])
+				begin
+					axi_cfg[i] = axi_config::type_id::create($sformatf("axi_cfg[%0d]",i),this);
+					axi_cfg[i].is_active = UVM_ACTIVE;
+					cfg.axi_cfg[i] = axi_cfg[i];
+				end
+		end
+	configure_env;
+	uvm_config_db #(env_config)::set(this,"*","env_config",cfg);
+	envh = env::type_id::create("envh",this);
+endfunction : build_phase
+
+function void base_test::configure_env;
+	cfg.has_ahb_agent = has_ahb_agent;
+	cfg.has_axi_agent = has_axi_agent;
+	
+	cfg.num_ahb_agent = num_ahb_agent;
+	cfg.num_axi_agent = num_axi_agent;
+
+	cfg.has_scoreboard = has_scoreboard;
+endfunction : configure_env
+
+function void base_test::end_of_elaboration_phase(uvm_phase phase);
+	uvm_top.print_topology();
+endfunction : end_of_elaboration_phase
