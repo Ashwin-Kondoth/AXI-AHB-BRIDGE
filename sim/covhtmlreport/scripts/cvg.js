@@ -197,23 +197,7 @@ function processCovergroupsData(g_data) {
             urlParams: cvgUrlParams,
             rowSelection: 'single',
             callback: function(firstNodeIndex) {
-                var rowId;
-                if (urlParams.hasOwnProperty(PREFIX.COVERGROUP + '_filter')) {
-                    var selectItem = urlParams[PREFIX.COVERGROUP + '_filter'].split(',').pop();
-                    var lastRowIndex = gridOptions.api.getDisplayedRowCount() - 1;
-                    var rowIndex = 0;
-                    while (rowIndex <= lastRowIndex) {
-                        var node = gridOptions.api.getDisplayedRowAtIndex(rowIndex);
-                        if(node.data.name === selectItem) {
-                            rowId = node.id;
-                            break;
-                        }
-                        rowIndex ++;
-                    }
-                }
-                if(rowId === undefined ) {
-                    rowId = urlParams.hasOwnProperty(PREFIX.COVERGROUP) ? (urlParams.hasOwnProperty(PREFIX.COVERGROUP + '_c') ? urlParams[PREFIX.COVERGROUP + '_c'] : urlParams[PREFIX.COVERGROUP]) : firstNodeIndex;
-                }
+                var rowId = urlParams.hasOwnProperty(PREFIX.COVERGROUP) ? (urlParams.hasOwnProperty(PREFIX.COVERGROUP + '_c') ? urlParams[PREFIX.COVERGROUP + '_c'] : urlParams[PREFIX.COVERGROUP]) : firstNodeIndex;
                 $('a[name="' + rowId + '"]')[0].click();
                 gridSelectNode(gridOptions, rowId);
             }
@@ -295,7 +279,8 @@ function getData(dataObj) {
 function constructDataObj(cvg, extraData) {
 
     var obj = {
-        name: cvg.h[1] === 1  && urlParams.hasOwnProperty('type') && urlParams.type === 'du' ? ( getCovergroupDUName(cvg.h[0], cvg.h[1], extraData)) :  (extraData && extraData.parentName != cvg.h[0] ? (extraData.parentName + '/' + cvg.h[0]) : cvg.h[0]),
+        name: cvg.h[1] === 1  && urlParams.hasOwnProperty('type') && urlParams.type === 'du' ? ( getCovergroupDUName(cvg.h[0], cvg.h[1], extraData)) :  (extraData && extraData.parentName != cvg.h[0] ? (extraData.parentName + '---' + cvg.h[0]) : cvg.h[0]),
+        // name: cvg.h[0],
         h: cvg.h,
         type: cvg.h[1],
         cf: cvg.h[2],
@@ -313,10 +298,6 @@ function constructDataObj(cvg, extraData) {
         c: isShowExcluded? cvg.cov[4] : cvg.cov[3],  //Exclusion Comment if exist
         sc: cvg.sc // Source if exists
     };
-
-    if (extraData && extraData.parentName != cvg.h[0]) {
-        obj['childName'] = cvg.h[0];
-    }
 
     if (extraData && cvg.h.length == 6) {
         obj.contribution = true;
@@ -400,7 +381,7 @@ NameCellRenderer.prototype.init = function(params) {
     var renderDetails  = this.renderDetails;
     var urlQueryParams = (typeof params.data.cf !== 'undefined' && !isNoCvgBinEnabled) ? ('?f=' +  params.data.cf + '&s=' + params.data.detailsId + '&cp=' + params.data.coverage + (urlParams.ty ? ('&ty=' + urlParams.ty) : '' ) + (urlParams.type ? ('&type=' + urlParams.type) : '' )) : undefined;
     var href = (params.data.type == COVERGROUPS_IDs.COVERPOINT || params.data.type == COVERGROUPS_IDs.CROSS) ? ((typeof urlQueryParams !== 'undefined') ? ('cvgBins.html' + urlQueryParams) : undefined) : (cvgPageUrl + cvgId + ((urlParams.f && urlParams.s ) ? ('&f=' + urlParams.f + '&s=' + urlParams.s) : '') + '&cp=' + urlParams.cp + (urlParams.ty ? ('&ty=' + urlParams.ty) : '') + (urlParams.type ? ('&type=' + urlParams.type) : '' ) );
-    var cellValue = params.data.childName ? params.data.childName : params.value;
+    var cellValue = params.value.split('---').pop();
     var hrefBins = href;
 
     var cellHTMLTemplate =

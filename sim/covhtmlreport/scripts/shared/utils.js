@@ -54,29 +54,6 @@ var pageName = {
     'bl': 'blockCoverage.html?'
 };
 
-var testPlanPageName = {
-    'assert': 'assertionsDirectives.html?t=a&',
-    'branch': 'branches.html?',
-    'cover': 'assertionsDirectives.html?t=d&',
-    'fsm': 'fsm.html?',
-    'fsm_states': 'fsm.html?t=state&',
-    'fsm_trans': 'fsm.html?t=trans&',
-    'cond': 'condExp.html?t=fc&',
-    'expr': 'condExp.html?t=fe&',
-    'statement': 'statements.html?',
-    'toggle': 'toggles.html?',
-    'covergroup': 'cvg.html?',
-    'bblock_scope': 'blockCoverage.html?',
-    'coverinstance': 'cvg.html?',
-    'instance': 'summary.html?',
-    'du_arch': 'summary.html?type=du&',
-    'coverpoint': 'cvg.html?type=inst&',
-    'cross': 'cvg.html?type=inst&',
-    'du_module': 'summary.html?type=du&',
-    'package': 'summary.html?'
-};
-
-
 var OVERALL = {
     DESIGN_UNITS_DATA: 'du',
     DESIGN_INSTANCES_DATA: 'ds',
@@ -338,8 +315,12 @@ function createDataGridInstance(id, columnDefs, rowData, config, height , forceF
 
                 if (config.hasOwnProperty('callback')) {
                     var firstNodeIndex = 0;
-                    var firstDisplayedNode = gridOptions.api.getDisplayedRowAtIndex(0);
+                    var firstDisplayedNode;
+                    var firstDisplayedNodeId = gridOptions.api.getFirstDisplayedRow();
 
+                    if (typeof firstDisplayedNodeId !== 'undefined') {
+                        firstDisplayedNode = gridOptions.api.getRowNode(firstDisplayedNodeId);
+                    }
                     if (typeof firstDisplayedNode !== 'undefined') {
                         firstNodeIndex = (firstDisplayedNode.hasOwnProperty('parent')) ? firstDisplayedNode.parent.id : firstDisplayedNode.id;
                     }
@@ -428,7 +409,7 @@ function createDataGridInstance(id, columnDefs, rowData, config, height , forceF
         gridOptions.pagination = options.paginationEnabled;
     } else if (nEntries.topCount <= 10 && nEntries.totalCount <= 12) {
         gridOptions.pagination = false;
-        if (!forceFloatingFilters && (nEntries.totalCount == 0 || nEntries.totalCount == 1 )) {
+        if (!forceFloatingFilters && (nEntries.totalCount == 1 || nEntries.totalCount == 2 )) {
             gridOptions.floatingFilter = false;
         }
     } else {

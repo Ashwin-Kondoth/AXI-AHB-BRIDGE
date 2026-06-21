@@ -7,6 +7,8 @@ class env extends uvm_env;
 
 	ahb_agent_top ahb_agt_top;
 	axi_agent_top axi_agt_top;
+	ahb_rst_agent_top ahb_rst_agt_top;
+	axi_rst_agent_top axi_rst_agt_top;
 
 	env_config cfg;
 	
@@ -21,10 +23,16 @@ function void env::build_phase(uvm_phase phase);
 		`uvm_fatal("ENV","Get failed for env_config")
 
 	if(cfg.has_ahb_agent)
-		ahb_agt_top = ahb_agent_top::type_id::create("ahb_agt_top",this);
-	
+		begin
+			ahb_agt_top = ahb_agent_top::type_id::create("ahb_agt_top",this);
+			ahb_rst_agt_top = ahb_rst_agent_top::type_id::create("ahb_rst_agt_top",this);
+		end
+
 	if(cfg.has_axi_agent)
-		axi_agt_top = axi_agent_top::type_id::create("axi_agt_top",this);
+		begin
+			axi_agt_top = axi_agent_top::type_id::create("axi_agt_top",this);
+			axi_rst_agt_top = axi_rst_agent_top::type_id::create("axi_rst_agt_top",this);
+		end
 
 	if(cfg.has_scoreboard)
 		begin
@@ -39,13 +47,19 @@ function void env::connect_phase(uvm_phase phase);
 		begin
 			if(cfg.has_scoreboard)
 				foreach(sbh[i])
-					ahb_agt_top.ahb_agt[i].mon.monitor_port.connect(sbh[i].ahb_fifo.analysis_export);
+					begin
+						ahb_agt_top.ahb_agt[i].mon.monitor_port.connect(sbh[i].ahb_fifo.analysis_export);
+						ahb_rst_agt_top.ahb_rst_agt[i].mon.monitor_port.connect(sbh[i].ahb_rst_fifo.analysis_export);
+					end
 		end
 
 	if(cfg.has_axi_agent)
 		begin
 			if(cfg.has_scoreboard)
 				foreach(sbh[i])
-					axi_agt_top.axi_agt[i].mon.monitor_port.connect(sbh[i].axi_fifo.analysis_export);
+					begin
+						axi_agt_top.axi_agt[i].mon.monitor_port.connect(sbh[i].axi_fifo.analysis_export);
+						axi_rst_agt_top.axi_rst_agt[i].mon.monitor_port.connect(sbh[i].axi_rst_fifo.analysis_export);
+					end
 		end
 endfunction : connect_phase

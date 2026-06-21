@@ -521,7 +521,7 @@ function highlightViewPort(event, srcNumber, tabId) {
             }
             else {
                 for (let index = lineNo; index <= endLineNo; index++) {
-                    addHitsGutters(editor[srcNumber], index - 1, itemN, item[BLOCKS_SRC.ITEM_HITS], uniqueId, item[BLOCKS_SRC.ITEM_EXC_COMMENT], item[BLOCKS_SRC.THIT] , (index - lineNo + 1), (endLineNo - lineNo + 1) );
+                    addHitsGutters(editor[srcNumber], index - 1, itemN, item[BLOCKS_SRC.ITEM_HITS], uniqueId, item[BLOCKS_SRC.ITEM_EXC_COMMENT], item[BLOCKS_SRC.THIT]);
                     addMarkers(editor[srcNumber], markers, index - 1, item[BLOCKS_SRC.ITEM_START], index, (item[BLOCKS_SRC.ITEM_START]) + (item[BLOCKS_SRC.ITEM_LENGTH]), item[BLOCKS_SRC.ITEM_LENGTH], 0);
                 }
                }

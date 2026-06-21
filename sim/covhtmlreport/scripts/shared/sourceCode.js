@@ -91,27 +91,13 @@ function showTooltip(e , template) {
 }
 
 //Rendering hits in the gutters
-function addHitsGutters(editor, lineNum, item, hits, exclId, exclComment, thData, gbIndex ,gbLength ) {
+function addHitsGutters(editor, lineNum, item, hits, exclId, exclComment, thData) {
     var template;
     var imgSource;
     var imgExtraAttr = '';
     var imgExtraClasses = '';
     var divExtraAttr = '';
     var divExtraClasses = '';
-    var generateBlockGutClass = '';
-    var addHitText= true;
-
-   // This block is responsible for adding borders to the same GB and center the hits count gutter text
-   if (gbIndex && gbLength > 1){
-       var hitIndex = Math.ceil(gbLength / 2);
-       generateBlockGutClass = 'gb-gut '
-       addHitText = (gbLength == 1 || (gbIndex == hitIndex))
-       if (gbIndex == 1) {
-           generateBlockGutClass += 'gb-first-gut';
-       } else if (gbIndex == gbLength) {
-           generateBlockGutClass += 'gb-last-gut';
-       }
-    }
 
     var isGenBlkExist = (typeof hits === 'object');
     var isHitsExlcuded  = (typeof hits === 'string');
@@ -169,9 +155,9 @@ function addHitsGutters(editor, lineNum, item, hits, exclId, exclComment, thData
 
         //Constructing gutters template
         if (thData && hits != 0) {
-            template = '<p class="' + (hits == 0 ? 'src-gut-not-hit ' : 'src-gut-hit ') + generateBlockGutClass+ (addHitText ? '' : ' transparent') +'" ' + divExtraAttr + '>' + hits + '  <i class="fa fa-flask" aria-hidden="true" style="color: black;font-size: 20px;" onclick="thdModal(event)"></i> <i id= "thdCheck" class="fa fa-check" style="position: absolute;margin-left: 33px;display: block;color: #11ef06;margin-top: -21px;font-size: 18px;z-index: 30;"onclick="thdModal(event)"></i></p>';   //adding flask icon incase of testhit data exist
+            template = '<p class="' + (hits == 0 ? 'src-gut-not-hit' : 'src-gut-hit') + '" ' + divExtraAttr + '>' + hits + '  <i class="fa fa-flask" aria-hidden="true" style="color: black;font-size: 20px;" onclick="thdModal(event)"></i> <i id= "thdCheck" class="fa fa-check" style="position: absolute;margin-left: 33px;display: block;color: #11ef06;margin-top: -21px;font-size: 18px;z-index: 30;"onclick="thdModal(event)"></i></p>';   //adding flask icon incase of testhit data exist
         } else {
-            template = '<p class="' + (hits == 0 ? 'src-gut-not-hit ' : 'src-gut-hit ') + generateBlockGutClass + (addHitText ? '' : ' transparent') + '">' + hits + ' </p>';
+            template = '<p class="' + (hits == 0 ? 'src-gut-not-hit' : 'src-gut-hit') + '">' + hits + ' </p>';
         }
     }
 

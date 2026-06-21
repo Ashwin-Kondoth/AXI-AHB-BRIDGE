@@ -1231,24 +1231,6 @@ span.modal-title {
     background-color: #78e456;
     text-align: center;
 }
-
-.gb-last-gut{
-    border-bottom: 2px solid black;
-}
-
-.gb-gut {
-    border-left: 2px solid black;
-    border-right: 2px solid black;
-}
-
-.gb-first-gut{
-    border-top: 2px solid black;
-}
-
-.gb-first-gut.transparent, .gb-last-gut.transparent , .gb-gut.transparent{
-    color: transparent !important
-}
-
 .src-gut-not-hit {
     color: black !important;
     background-color: #f2c8c9;

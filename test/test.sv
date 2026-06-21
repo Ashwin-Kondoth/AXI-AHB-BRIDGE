@@ -11,6 +11,8 @@ class base_test extends uvm_test;
 	env_config cfg;
 	ahb_config ahb_cfg[];
 	axi_config axi_cfg[];
+	ahb_rst_config   ahb_rst_cfg[];
+	axi_rst_config   axi_rst_cfg[];
 	
 	bit has_ahb_agent = 1;
 	bit has_axi_agent = 1;
@@ -31,24 +33,34 @@ function void base_test::build_phase(uvm_phase phase);
 	if(has_ahb_agent)
 		begin
 			ahb_cfg = new[num_ahb_agent];
+			ahb_rst_cfg = new[num_ahb_agent];
 			cfg.ahb_cfg = new[num_ahb_agent];
+			cfg.ahb_rst_cfg = new[num_ahb_agent];
 			foreach(ahb_cfg[i])
 				begin
 					ahb_cfg[i] = ahb_config::type_id::create($sformatf("ahb_cfg[%0d]",i),this);
+					ahb_rst_cfg[i] = ahb_rst_config::type_id::create($sformatf("ahb_rst_cfg[%0d]",i),this);
 					ahb_cfg[i].is_active = UVM_ACTIVE;
+					ahb_rst_cfg[i].is_active = UVM_ACTIVE;
 					cfg.ahb_cfg[i] = ahb_cfg[i];
+					cfg.ahb_rst_cfg[i] = ahb_rst_cfg[i];
 				end
 		end
 
 	if(has_axi_agent)
 		begin
 			axi_cfg = new[num_axi_agent];
+			axi_rst_cfg = new[num_axi_agent];
 			cfg.axi_cfg = new[num_axi_agent];
+			cfg.axi_rst_cfg = new[num_axi_agent];
 			foreach(axi_cfg[i])
 				begin
 					axi_cfg[i] = axi_config::type_id::create($sformatf("axi_cfg[%0d]",i),this);
+					axi_rst_cfg[i] = axi_rst_config::type_id::create($sformatf("axi_rst_cfg[%0d]",i),this);
 					axi_cfg[i].is_active = UVM_ACTIVE;
+					axi_rst_cfg[i].is_active = UVM_ACTIVE;
 					cfg.axi_cfg[i] = axi_cfg[i];
+					cfg.axi_rst_cfg[i] = axi_rst_cfg[i];
 				end
 		end
 	configure_env;

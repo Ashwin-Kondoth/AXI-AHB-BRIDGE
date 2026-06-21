@@ -15,9 +15,6 @@ var TESTPLAN_ITEM = {
     WEIGHT: 5,
     SECTION_NAME: 6,
     GOAL: 7,
-    SCOPE: 8,
-    FILE: 9,
-    SUB_SCOPE: 10,
     LEVEL: 8,
     SECTION_NUMBER: 9,
     LINKSTATUS: 10
@@ -74,7 +71,7 @@ function MapTPData (array , mode , firstParent) {
     var parentId, Idn;
     let result = [];
     array.forEach(function (testPlanItem, itemIndex) {
-        if ((testPlanItem.fixed_attr_val[TESTPLAN_ITEM.TYPE]) === 'testplan') {
+        if ((testPlanItem.fixed_attr_val).length === 11) {
             var index = (testPlanItem.fixed_attr_val[TESTPLAN_ITEM.SECTION_NUMBER]).lastIndexOf('.');
             Idn = testPlanItem.fixed_attr_val[TESTPLAN_ITEM.SECTION_NUMBER];
 
@@ -90,13 +87,10 @@ function MapTPData (array , mode , firstParent) {
             goal: testPlanItem.fixed_attr_val[TESTPLAN_ITEM.GOAL],
             goalP: testPlanItem.fixed_attr_val[TESTPLAN_ITEM.GOALP],
             type: (TESTPLAN_TYPE[testPlanItem.fixed_attr_val[TESTPLAN_ITEM.TYPE]]) ? TESTPLAN_TYPE[testPlanItem.fixed_attr_val[TESTPLAN_ITEM.TYPE]] : testPlanItem.fixed_attr_val[TESTPLAN_ITEM.TYPE],
-            weight: testPlanItem.fixed_attr_val[TESTPLAN_ITEM.WEIGHT],
-            f: testPlanItem.fixed_attr_val[TESTPLAN_ITEM.FILE],
-            s: testPlanItem.fixed_attr_val[TESTPLAN_ITEM.SCOPE],
-            fsub: testPlanItem.fixed_attr_val[TESTPLAN_ITEM.SUB_SCOPE],
+            weight: testPlanItem.fixed_attr_val[TESTPLAN_ITEM.WEIGHT]
         } ;
 
-        if ((testPlanItem.fixed_attr_val[TESTPLAN_ITEM.TYPE]) === 'testplan') { //Section or SubSection
+        if ((testPlanItem.fixed_attr_val).length === 11) { //Section or SubSection
             rowItems.testplan = testPlanItem.fixed_attr_val[TESTPLAN_ITEM.SECTION_NUMBER] + ' ' + testPlanItem.fixed_attr_val[TESTPLAN_ITEM.SECTION_NAME];
             rowItems.sectionName = testPlanItem.fixed_attr_val[TESTPLAN_ITEM.SECTION_NAME];
             rowItems.linkStatus = (testPlanItem.fixed_attr_val[TESTPLAN_ITEM.LINKSTATUS] === 1) ? 'Clean' : 'Not Clean';
@@ -139,7 +133,7 @@ function MapTPData (array , mode , firstParent) {
 
         if (mode === 'summary')  // If summary mode we will check only for the section headers
         {
-            if ((testPlanItem.fixed_attr_val[TESTPLAN_ITEM.TYPE]) === 'testplan' &&  (testPlanItem.fixed_attr_val[TESTPLAN_ITEM.SECTION_NUMBER]).indexOf('.') === -1 ) {
+            if ((testPlanItem.fixed_attr_val).length === 11 &&  (testPlanItem.fixed_attr_val[TESTPLAN_ITEM.SECTION_NUMBER]).indexOf('.') === -1 ) {
                 result.push(rowItems);
             }
 
@@ -172,8 +166,6 @@ function initializeTestPlanData(usr_attr, mode) {
                 innerRenderer: function (params) {
                     if (mode === 'summary') {
                         return '<a href="testPlan.html?section='+ params.data.sectionName + '">' + params.value + '</a>'
-                    } else if (params && params.data && params.data.type !== 'testplan' && params.data.type !== 'test' && params.data.type !== 'potential_test' && params.data.f > -1) {
-                        return '<a href="' + testPlanPageName[params.data.type] + 'f=' + params.data.f + (params.data.hasOwnProperty('fsub') ? ('&fsub=' + params.data.fsub) : '')  + '&s=' + params.data.s +'&'+ getTypeFilter(params.data) +'">' + params.value + '</a>';
                     } else {
                          // Handling Linking testplan to crossbin by replacing "<" and ">" by the corresponding HTML symbols
                      if (params.data.type === 'cvg bin' && params.value.indexOf('<') > -1 && params.value.indexOf('>') > -1) {
@@ -391,52 +383,6 @@ function initializeTestPlanData(usr_attr, mode) {
         delete testplanColumnDefs.splice(1, 1);  // Remove Type Column
     }
 
-}
-
-function getTypeFilter(data) {
-    switch(data.type){
-        case 'toggle' : {
-            var toggle = data.testplan.split('/').pop().split('[')[0];
-            return 'tsca_filter=name,contains,' + toggle;
-        }
-        case 'cross':
-        case 'coverpoint':
-            {
-            var href = ''
-            var fullName = data.testplan.split('\\').pop();
-            var lastIndex = fullName.lastIndexOf('/');
-            var instance = fullName.substr(0, lastIndex);
-            var cross = fullName.split('/').pop();
-            if  (instance){
-                href+= '&cg_filter=name,contains,' +  instance ;
-            }
-            if (data.type == 'cross'){
-                href += '&cg_c=1&c=1&&c_page=1&c_filter=name,contains,' + cross;
-            } else {
-                href += '&cpp_filter=name,contains,' + cross;
-            }
-            return href;
-        }
-        case 'coverinstance': {
-            return '&cg_filter=name,equals,' + data.testplan;
-        }
-        case 'branch' : {
-            var lineNumber = data.testplan.split('#')[1];
-            return  '&br_sort=line,asc&br_filter=line,greaterThan,' + (lineNumber - 1);
-        }
-        case 'cond' :
-        case 'expr' :
-        {
-            var lineNumber = data.testplan.split('#')[1];
-            return  '&ex_filter=line,equals,' + lineNumber;
-        }
-        case 'assert': {
-            return  '&a_filter=name,contains,' + data.testplan.split('/').pop();
-       }
-        case 'cover': {
-            return  '&d_filter=name,contains,' + data.testplan.split('/').pop();
-   }
-    }
 }
 
 function CheckExclusion(params) {
