@@ -23,6 +23,7 @@ function void ahb_rst_agent_top::build_phase(uvm_phase phase);
 	foreach(ahb_rst_agt[i])
 		begin
 			uvm_config_db #(ahb_rst_config)::set(this,$sformatf("ahb_rst_agt[%0d]*",i),"ahb_rst_config",cfg.ahb_rst_cfg[i]);
+			uvm_config_db #(ahb_config)::set(this,$sformatf("ahb_rst_agt[%0d]*",i),"ahb_config",cfg.ahb_cfg[i]);
 			ahb_rst_agt[i] = ahb_rst_agent::type_id::create($sformatf("ahb_rst_agt[%0d]",i),this);
 		end
 endfunction : build_phase

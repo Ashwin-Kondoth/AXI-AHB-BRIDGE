@@ -21,7 +21,7 @@ class axi_rst_config extends uvm_object;
 		super.new(name);
 	endfunction : new
 
-	virtual axi_if          vif;
+	virtual axi_rst_if          vif;
 	
 	uvm_active_passive_enum is_active = UVM_ACTIVE;
 

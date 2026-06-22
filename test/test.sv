@@ -42,6 +42,10 @@ function void base_test::build_phase(uvm_phase phase);
 					ahb_rst_cfg[i] = ahb_rst_config::type_id::create($sformatf("ahb_rst_cfg[%0d]",i),this);
 					ahb_cfg[i].is_active = UVM_ACTIVE;
 					ahb_rst_cfg[i].is_active = UVM_ACTIVE;
+					if(!uvm_config_db #(virtual ahb_if)::get(this,"","ahb_vif",ahb_cfg[i].vif))
+						`uvm_fatal("TEST","Get failed for ahb_if")
+					if(!uvm_config_db #(virtual ahb_rst_if)::get(this,"","ahb_rst_vif",ahb_rst_cfg[i].vif))
+						`uvm_fatal("TEST","Get failed for ahb_rst_if")
 					cfg.ahb_cfg[i] = ahb_cfg[i];
 					cfg.ahb_rst_cfg[i] = ahb_rst_cfg[i];
 				end
@@ -59,6 +63,10 @@ function void base_test::build_phase(uvm_phase phase);
 					axi_rst_cfg[i] = axi_rst_config::type_id::create($sformatf("axi_rst_cfg[%0d]",i),this);
 					axi_cfg[i].is_active = UVM_ACTIVE;
 					axi_rst_cfg[i].is_active = UVM_ACTIVE;
+					if(!uvm_config_db #(virtual axi_if)::get(this,"","axi_vif",axi_cfg[i].vif))
+						`uvm_fatal("TEST","Get failed for axi_if")
+					if(!uvm_config_db #(virtual axi_rst_if)::get(this,"","axi_rst_vif",axi_rst_cfg[i].vif))
+						`uvm_fatal("TEST","Get failed for axi_rst_if")
 					cfg.axi_cfg[i] = axi_cfg[i];
 					cfg.axi_rst_cfg[i] = axi_rst_cfg[i];
 				end
@@ -81,3 +89,25 @@ endfunction : configure_env
 function void base_test::end_of_elaboration_phase(uvm_phase phase);
 	uvm_top.print_topology();
 endfunction : end_of_elaboration_phase
+
+class reset_test extends base_test;
+	`uvm_component_utils(reset_test)
+
+	function new(string name = "reset_test",uvm_component parent);
+		super.new(name,parent);
+	endfunction : new
+
+	ahb_reset_sequence ahb_rst_seq;
+	axi_reset_sequence axi_rst_seq;
+
+	task run_phase(uvm_phase phase);
+		ahb_rst_seq = ahb_reset_sequence::type_id::create("ahb_rst_seq");
+		axi_rst_seq = axi_reset_sequence::type_id::create("axi_rst_seq");
+		//fork
+			for(int i = 0; i < num_axi_agent ; i++)
+				axi_rst_seq.start(envh.axi_rst_agt_top.axi_rst_agt[i].seqr);
+			for(int i = 0; i < num_ahb_agent ; i++)
+				ahb_rst_seq.start(envh.ahb_rst_agt_top.ahb_rst_agt[i].seqr);
+		//join
+	endtask : run_phase
+endclass : reset_test

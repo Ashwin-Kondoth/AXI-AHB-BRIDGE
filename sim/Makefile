@@ -7,7 +7,7 @@ SIMULATOR = VCS
 
 FSDB_PATH=/home/cad/eda/SYNOPSYS/VERDI_2022/verdi/T-2022.06-SP1/share/PLI/VCS/LINUX64
 
-#RTL= ../rtl/*
+RTL= ../rtl/*
 work= work #library name
 SVTB1= ../env/top.sv
 INC = +incdir+../env +incdir+../test +incdir+../AHB_slave_agent +incdir+../AXI_master_agent 

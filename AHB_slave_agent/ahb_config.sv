@@ -21,7 +21,7 @@ class ahb_rst_config extends uvm_object;
 		super.new(name);
 	endfunction : new
 
-	virtual ahb_if          vif;
+	virtual ahb_rst_if          vif;
 	
 	uvm_active_passive_enum is_active = UVM_ACTIVE;
 

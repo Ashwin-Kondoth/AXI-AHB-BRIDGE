@@ -5,6 +5,13 @@ class ahb_rst_xtn extends uvm_sequence_item;
 		super.new(name);
 	endfunction : new
 
+	rand bit hresetn;
+
+	function void do_print(uvm_printer printer);
+		super.do_print(printer);
+		printer.print_field("hresetn",hresetn,1,UVM_BIN);
+	endfunction : do_print
+
 endclass : ahb_rst_xtn
 
 

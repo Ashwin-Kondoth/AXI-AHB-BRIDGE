@@ -23,6 +23,7 @@ function void axi_rst_agent_top::build_phase(uvm_phase phase);
 	foreach(axi_rst_agt[i])
 		begin
 			uvm_config_db #(axi_rst_config)::set(this,$sformatf("axi_rst_agt[%0d]*",i),"axi_rst_config",cfg.axi_rst_cfg[i]);
+			uvm_config_db #(axi_config)::set(this,$sformatf("axi_rst_agt[%0d]*",i),"axi_config",cfg.axi_cfg[i]);
 			axi_rst_agt[i] = axi_rst_agent::type_id::create($sformatf("axi_rst_agt[%0d]",i),this);
 		end
 endfunction : build_phase

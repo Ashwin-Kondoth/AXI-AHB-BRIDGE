@@ -7,6 +7,8 @@ package test_pkg;
 	`include "env_config.sv"
 	`include "ahb_xtn.sv"
 	`include "axi_xtn.sv"
+	`include "ahb_sequence.sv"
+	`include "axi_sequence.sv"
 	`include "ahb_sequencer.sv"
 	`include "ahb_driver.sv"
 	`include "ahb_monitor.sv"
