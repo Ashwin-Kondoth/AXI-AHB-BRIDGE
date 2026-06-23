@@ -32,10 +32,8 @@ class axi_rst_driver extends uvm_driver #(axi_rst_xtn);
 	endtask : run_phase
 
 	task send_to_dut(axi_rst_xtn xtn);
-		$display("AXI DRIVER");
 		@(rst_vif.axi_rst_drv_cb);
 		rst_vif.axi_rst_drv_cb.aresetn <= xtn.aresetn;
-		xtn.print();
 		repeat(2)
 		@(rst_vif.axi_rst_drv_cb);
 		rst_vif.axi_rst_drv_cb.aresetn <= 1'b1;

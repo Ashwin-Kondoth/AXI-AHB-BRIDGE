@@ -32,13 +32,14 @@ class ahb_rst_driver extends uvm_driver #(ahb_rst_xtn);
 	endtask : run_phase
 
 	task send_to_dut(ahb_rst_xtn xtn);
-		$display("AHB DRIVER");
 		@(rst_vif.ahb_rst_drv_cb);
 		rst_vif.ahb_rst_drv_cb.hresetn <= xtn.hresetn;
-		xtn.print();
+		vif.ahb_drv_cb.hready <= 1'b1;
 		repeat(2)
 		@(rst_vif.ahb_rst_drv_cb);
 		rst_vif.ahb_rst_drv_cb.hresetn <= 1'b1;
+		vif.ahb_drv_cb.hready <= 1'b0;
+		@(rst_vif.ahb_rst_drv_cb);
 	endtask : send_to_dut
 
 endclass : ahb_rst_driver

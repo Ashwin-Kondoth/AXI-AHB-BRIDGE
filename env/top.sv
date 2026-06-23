@@ -3,6 +3,8 @@ module top;
 	import uvm_pkg::*;
 	import test_pkg::*;
 
+	`include "uvm_macros.svh"
+
 	bit aclock;
 	bit hclock;
 

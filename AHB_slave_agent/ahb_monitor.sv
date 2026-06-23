@@ -33,10 +33,13 @@ class ahb_rst_monitor extends uvm_monitor;
 	task collect_data();
 		ahb_rst_xtn xtn;
 		xtn = ahb_rst_xtn::type_id::create("xtn");
-
 		wait(rst_vif.ahb_rst_mon_cb.hresetn == 1'b0)
+		@(rst_vif.ahb_rst_mon_cb);
 		xtn.hresetn = rst_vif.ahb_rst_mon_cb.hresetn;
-		xtn.print();
+		xtn.hready = vif.ahb_mon_cb.hready;
+		xtn.htrans = vif.ahb_mon_cb.htrans;
+		@(rst_vif.ahb_rst_mon_cb);
+		`uvm_info("AHB_MON",$sformatf("%s",xtn.sprint),UVM_LOW)
 	endtask : collect_data
 
 endclass : ahb_rst_monitor

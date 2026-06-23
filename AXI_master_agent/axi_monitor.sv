@@ -34,10 +34,12 @@ class axi_rst_monitor extends uvm_monitor;
 		axi_rst_xtn xtn;
 		xtn = axi_rst_xtn::type_id::create("xtn");
 		wait(rst_vif.axi_rst_mon_cb.aresetn == 1'b0)
+		@(rst_vif.axi_rst_mon_cb);
 		xtn.aresetn = rst_vif.axi_rst_mon_cb.aresetn;
 		xtn.bvalid = vif.axi_mon_cb.bvalid;
 		xtn.rvalid = vif.axi_mon_cb.rvalid;
-		xtn.print();
+		@(rst_vif.axi_rst_mon_cb);
+		`uvm_info("AXI_MON",$sformatf("%s",xtn.sprint),UVM_LOW)
 	endtask : collect_data
 
 endclass : axi_rst_monitor
