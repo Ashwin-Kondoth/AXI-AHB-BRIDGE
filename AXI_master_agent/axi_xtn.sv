@@ -57,5 +57,44 @@ class axi_xtn extends uvm_sequence_item;
 	rand bit        rlast;
 	rand bit        rvalid;
 		 bit        rready;
+		 int		delay_cycles;
 
+	constraint write_id_con	{awid == wid ; bid == wid;}
+	constraint read_id_con	{rid == arid;}
+
+	constraint arburst_con	{arburst inside {0,1,2};}
+	constraint awburst_con	{awburst inside {0,1,2};}
+
+	constraint arsize_con	{arsize inside {0,1,2,3};}
+	constraint awsize_con	{awsize inside {0,1,2,3};}
+
+	constraint write_align1	{((awburst == 2'b10) && (awsize == 1)) -> awaddr%2 == 0;}
+	constraint write_align2	{((awburst == 2'b10) && (awsize == 2)) -> awaddr%4 == 0;}
+	constraint write_align3	{((awburst == 2'b10) && (awsize == 3)) -> awaddr%8 == 0;}
+	
+	constraint read_align1	{((arburst == 2'b10) && (arsize == 1)) -> araddr%2 == 0;}
+	constraint read_align2	{((arburst == 2'b10) && (arsize == 2)) -> araddr%4 == 0;}
+	constraint read_align3	{((arburst == 2'b10) && (arsize == 3)) -> araddr%8 == 0;}
+
+	function void post_randomize();
+		int j=0;
+		bit [31:0] start_address = awaddr;
+		int number_of_bytes = 2**awsize;
+		int burst_length = awlen + 1;
+		bit [31:0] aligned_address = (start_address/number_of_bytes) * number_of_bytes;
+		wstrb = new[burst_length];
+
+		for(int i = (start_address % 8); i < ((aligned_address % 8) + number_of_bytes); i++)
+			begin
+				wstrb[j][i] = 1'b1;
+			end
+
+		for(int l = 1; l < burst_length; l++)
+			begin
+				aligned_address = aligned_address + number_of_bytes;
+				j++;
+				for (int k = (aligned_address % 8); k < ((aligned_address % 8) + number_of_bytes); k++)
+					wstrb[j][k] = 1'b1;
+			end
+	endfunction : post_randomize
 endclass : axi_xtn
