@@ -100,6 +100,10 @@ class reset_test extends base_test;
 	ahb_reset_sequence ahb_rst_seq;
 	axi_reset_sequence axi_rst_seq;
 
+	function void build_phase(uvm_phase phase);
+		super.build_phase(phase);
+	endfunction : build_phase
+
 	task run_phase(uvm_phase phase);
 		ahb_rst_seq = ahb_reset_sequence::type_id::create("ahb_rst_seq");
 		axi_rst_seq = axi_reset_sequence::type_id::create("axi_rst_seq");
@@ -113,3 +117,42 @@ class reset_test extends base_test;
 		phase.drop_objection(this);
 	endtask : run_phase
 endclass : reset_test
+
+class transaction_test extends base_test;
+	`uvm_component_utils(transaction_test)
+
+	function new(string name = "transaction_test",uvm_component parent);
+		super.new(name,parent);
+	endfunction : new
+
+	ahb_reset_sequence ahb_rst_seq;
+	axi_reset_sequence axi_rst_seq;
+
+	axi_write_sequence axi_wr_seq;
+	axi_read_sequence axi_rd_seq;
+
+	function void build_phase(uvm_phase phase);
+		super.build_phase(phase);
+	endfunction : build_phase
+
+	task run_phase(uvm_phase phase);
+		ahb_rst_seq = ahb_reset_sequence::type_id::create("ahb_rst_seq");
+		axi_rst_seq = axi_reset_sequence::type_id::create("axi_rst_seq");
+		axi_wr_seq = axi_write_sequence::type_id::create("axi_wr_seq");
+		axi_rd_seq = axi_read_sequence::type_id::create("axi_rd_seq");
+		phase.raise_objection(this);
+		fork
+			for(int i = 0; i < num_axi_agent ; i++)
+				axi_rst_seq.start(envh.axi_rst_agt_top.axi_rst_agt[i].seqr);
+			for(int i = 0; i < num_ahb_agent ; i++)
+				ahb_rst_seq.start(envh.ahb_rst_agt_top.ahb_rst_agt[i].seqr);
+		join
+		fork
+			for(int i = 0; i < num_axi_agent ; i++)
+				axi_wr_seq.start(envh.axi_agt_top.axi_agt[i].seqr);
+			for(int i = 0; i < num_axi_agent ; i++)
+				axi_rd_seq.start(envh.axi_agt_top.axi_agt[i].seqr);
+		join
+		phase.drop_objection(this);
+	endtask : run_phase
+endclass : transaction_test

@@ -131,12 +131,13 @@ class axi_driver extends uvm_driver #(axi_xtn);
 	task write_addr_channel(axi_xtn xtn);
 		@(vif.axi_drv_cb)
 			begin
+				$display("write_addr_channel");
 				vif.axi_drv_cb.awvalid <= xtn.awvalid;
 				vif.axi_drv_cb.awid <= xtn.awid;
 				vif.axi_drv_cb.awaddr <= xtn.awaddr;
 				vif.axi_drv_cb.awlen <= xtn.awlen;
 				vif.axi_drv_cb.awsize <= xtn.awsize;
-				vif.axi_drv_cb.awlast <= xtn.awlast;
+				vif.axi_drv_cb.awburst <= xtn.awburst;
 				wait(vif.axi_drv_cb.awready)
 				@(vif.axi_drv_cb);
 				vif.axi_drv_cb.awvalid <= 1'b0;
@@ -147,6 +148,7 @@ class axi_driver extends uvm_driver #(axi_xtn);
 
 	task write_data_channel(axi_xtn xtn);
 		begin
+			$display("write_data_channel");
 			foreach(xtn.wdata[i])
 				begin
 					vif.axi_drv_cb.wvalid <= xtn.wvalid;
@@ -172,6 +174,7 @@ class axi_driver extends uvm_driver #(axi_xtn);
 	endtask : write_data_channel
 	
 	task write_resp_channel (axi_xtn xtn);
+		$display("write_resp_channel");
 		vif.axi_drv_cb.bready <= 1'b1;
 		wait(vif.axi_drv_cb.bvalid)
 		@(vif.axi_drv_cb);
@@ -182,6 +185,7 @@ class axi_driver extends uvm_driver #(axi_xtn);
 	task read_addr_channel (axi_xtn xtn);
 		@(vif.axi_drv_cb)
 		begin
+			$display("read_addr_channel");
 			vif.axi_drv_cb.arvalid <= xtn.arvalid;
 			vif.axi_drv_cb.arid <= xtn.arid;
 			vif.axi_drv_cb.araddr <= xtn.araddr;
@@ -197,9 +201,10 @@ class axi_driver extends uvm_driver #(axi_xtn);
 	endtask : read_addr_channel
 
 	task read_data_channel (axi_xtn xtn);
-		repeat(vif.axi_drv_cb.wrlen + 1)
+		repeat(vif.axi_drv_cb.arlen + 1)
 			begin
 				@(vif.axi_drv_cb)
+				$display("read_data_channel");
 				vif.axi_drv_cb.rready <= 1'b1;
 				wait(vif.axi_drv_cb.rvalid)
 				@(vif.axi_drv_cb);
