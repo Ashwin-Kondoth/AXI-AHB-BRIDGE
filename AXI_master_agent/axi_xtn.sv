@@ -35,7 +35,7 @@ class axi_xtn extends uvm_sequence_item;
 	rand bit        awvalid;
 		 bit        awready;
 	rand bit [7:0]  wid;
-	rand bit [63:0] wdata;
+	rand bit [63:0] wdata[];
 		 bit [7:0]  wstrb[];
 	rand bit        wlast;
 	rand bit        wvalid;
@@ -52,8 +52,8 @@ class axi_xtn extends uvm_sequence_item;
 	rand bit        bvalid;
 		 bit        bready;
 	rand bit [7:0]  rid;
-	rand bit [63:0] rdata;
-	rand bit [1:0]  rresp;
+	rand bit [63:0] rdata[];
+	rand bit [1:0]  rresp[];
 	rand bit        rlast;
 	rand bit        rvalid;
 		 bit        rready;
@@ -67,6 +67,8 @@ class axi_xtn extends uvm_sequence_item;
 
 	constraint arsize_con	{arsize inside {0,1,2,3};}
 	constraint awsize_con	{awsize inside {0,1,2,3};}
+
+	constraint write_data_con {wdata.size == (awlen + 1);}
 
 	constraint write_align1	{((awburst == 2'b10) && (awsize == 1)) -> awaddr%2 == 0;}
 	constraint write_align2	{((awburst == 2'b10) && (awsize == 2)) -> awaddr%4 == 0;}
@@ -97,4 +99,42 @@ class axi_xtn extends uvm_sequence_item;
 					wstrb[j][k] = 1'b1;
 			end
 	endfunction : post_randomize
+
+	function void do_print(uvm_printer printer);
+		super.do_print(printer);
+		printer.print_field("awid",awid,8,UVM_HEX);
+		printer.print_field("awaddr",awaddr,32,UVM_HEX);
+		printer.print_field("awlen",awlen,8,UVM_HEX);
+		printer.print_field("awsize",awsize,3,UVM_HEX);
+		printer.print_field("awburst",awburst,2,UVM_HEX);
+		printer.print_field("awvalid",arvalid,1,UVM_BIN);
+		printer.print_field("awready",awready,1,UVM_BIN);
+		printer.print_field("wid",wid,8,UVM_HEX);
+		foreach(wdata[i])
+			printer.print_field($sformatf("wdata[%0d]",i),wdata[i],64,UVM_HEX);
+		printer.print_field("wlast",wlast,1,UVM_BIN);
+		printer.print_field("wvalid",wvalid,1,UVM_BIN);
+		printer.print_field("wready",wready,1,UVM_BIN);
+		printer.print_field("arid",arid,8,UVM_HEX);
+		printer.print_field("araddr",araddr,32,UVM_HEX);
+		printer.print_field("arlen",arlen,8,UVM_HEX);
+		printer.print_field("arsize",arsize,3,UVM_HEX);
+		printer.print_field("arburst",arburst,2,UVM_HEX);
+		printer.print_field("arvalid",arvalid,1,UVM_BIN);
+		printer.print_field("arready",arready,2,UVM_BIN);
+		printer.print_field("bid",bid,8,UVM_HEX);
+		printer.print_field("bresp",bresp,2,UVM_HEX);
+		printer.print_field("bvalid",bvalid,1,UVM_BIN);
+		printer.print_field("bready",bready,1,UVM_BIN);		
+		printer.print_field("rid",rid,8,UVM_HEX);
+		foreach(rdata[i])
+			printer.print_field($sformatf("rdata[%0d]",i),rdata[i],64,UVM_HEX);
+		foreach(rresp[i])
+			printer.print_field($sformatf("rresp[%0d]",i),rresp[i],2,UVM_HEX);
+		printer.print_field("rlast",rlast,1,UVM_BIN);
+		printer.print_field("rvalid",rvalid,1,UVM_BIN);
+		printer.print_field("rready",rready,1,UVM_BIN);
+
+	endfunction : do_print
 endclass : axi_xtn
+
