@@ -57,6 +57,9 @@ class axi_xtn extends uvm_sequence_item;
 	rand bit        rlast;
 	rand bit        rvalid;
 		 bit        rready;
+
+		 bit [63:0] temp_rdata;
+		 bit [63:0] temp_wdata;
 		 int		delay_cycles;
 
 	constraint write_id_con	{awid == wid ; bid == wid;}

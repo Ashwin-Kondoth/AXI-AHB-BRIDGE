@@ -141,6 +141,7 @@ class axi_driver extends uvm_driver #(axi_xtn);
 				wait(vif.axi_drv_cb.awready)
 				@(vif.axi_drv_cb);
 				vif.axi_drv_cb.awvalid <= 1'b0;
+				`uvm_info("AXI_DRV",$sformatf("AW_axi_xtn: \n %p",xtn.sprint()),UVM_LOW)
 				repeat (xtn.delay_cycles)
 					@(vif.axi_drv_cb);
 			end
@@ -165,7 +166,7 @@ class axi_driver extends uvm_driver #(axi_xtn);
 					@(vif.axi_drv_cb.wready);
 					vif.axi_drv_cb.wvalid <= 1'b0;
 					vif.axi_drv_cb.wlast <= 1'b0;
-					
+					`uvm_info("AXI_DRV",$sformatf("W_axi_xtn: \n %p",xtn.sprint()),UVM_LOW)
 					@(vif.axi_drv_cb)
 					repeat(xtn.delay_cycles)
 					@(vif.axi_drv_cb);
@@ -177,6 +178,7 @@ class axi_driver extends uvm_driver #(axi_xtn);
 		$display("write_resp_channel");
 		vif.axi_drv_cb.bready <= 1'b1;
 		wait(vif.axi_drv_cb.bvalid)
+		`uvm_info("AXI_DRV",$sformatf("B_axi_xtn: \n %p",xtn.sprint()),UVM_LOW)
 		@(vif.axi_drv_cb);
 		repeat(xtn.delay_cycles)
 		@(vif.axi_drv_cb);
@@ -195,6 +197,7 @@ class axi_driver extends uvm_driver #(axi_xtn);
 			wait(vif.axi_drv_cb.arready)
 			@(vif.axi_drv_cb);
 			vif.axi_drv_cb.arvalid <= 1'b0;
+			`uvm_info("AXI_DRV",$sformatf("AR_axi_xtn: \n %p",xtn.sprint()),UVM_LOW)
 			repeat(xtn.delay_cycles)
 			@(vif.axi_drv_cb);
 		end
@@ -209,6 +212,7 @@ class axi_driver extends uvm_driver #(axi_xtn);
 				wait(vif.axi_drv_cb.rvalid)
 				@(vif.axi_drv_cb);
 				vif.axi_drv_cb.rready <= 1'b0;
+				`uvm_info("AXI_DRV",$sformatf("R_axi_xtn: \n %p",xtn.sprint()),UVM_LOW)
 				repeat(xtn.delay_cycles)
 				@(vif.axi_drv_cb);
 			end

@@ -58,7 +58,7 @@ function void env::connect_phase(uvm_phase phase);
 			if(cfg.has_scoreboard)
 				foreach(sbh[i])
 					begin
-						axi_agt_top.axi_agt[i].mon.monitor_port.connect(sbh[i].axi_fifo.analysis_export);
+						axi_agt_top.axi_agt[i].mon.axi_monitor_port.connect(sbh[i].axi_fifo.analysis_export);
 						axi_rst_agt_top.axi_rst_agt[i].mon.monitor_port.connect(sbh[i].axi_rst_fifo.analysis_export);
 					end
 		end
