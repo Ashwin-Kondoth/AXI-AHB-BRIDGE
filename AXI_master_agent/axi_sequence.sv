@@ -37,7 +37,7 @@ class axi_write_sequence extends axi_base_sequence;
 	task body;
 		req = axi_xtn::type_id::create("req");
         start_item(req);
-        if(!req.randomize() with {awvalid == 1'b1; wvalid == 1'b1; arvalid == 1'b0; awburst == 2'b01; awaddr == 0; awlen inside {[0:15]};})
+        if(!req.randomize() with {awvalid == 1'b1; wvalid == 1'b1; arvalid == 1'b0; awburst == 2'b01; awlen inside {[0:15]}; awsize inside {[0:1]};})
             `uvm_fatal("AXI_WR_SEQ","Randomize failed")
         finish_item(req);
     endtask : body

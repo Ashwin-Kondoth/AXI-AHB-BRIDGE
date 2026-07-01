@@ -92,38 +92,48 @@ class axi_driver extends uvm_driver #(axi_xtn);
 		fork
 			begin
 				aw.get(1);
+				`uvm_info("ERR","write address started",UVM_LOW)
 				write_addr_channel(q1.pop_front());
 				aw.put(1);
+				`uvm_info("ERR","write address completed",UVM_LOW)
 				aw_w.put(1);
 			end
 			
 			begin
 				aw_w.get(1);
 				w.get(1);
+				`uvm_info("ERR","write data started",UVM_LOW)
 				write_data_channel(q2.pop_front());
 				w.put(1);
+				`uvm_info("ERR","write data completed",UVM_LOW)
 				w_b.put(1);
 			end
 		
 			begin
 				w_b.get(1);
 				b.get(1);
+				`uvm_info("ERR","write response started",UVM_LOW)
 				write_resp_channel(q3.pop_front());
 				b.put(1);
+				`uvm_info("ERR","write response completed",UVM_LOW)
 			end
 			
 			begin
 				ar.get(1);
+				`uvm_info("ERR","read address started",UVM_LOW)
 				read_addr_channel(q4.pop_front());
 				ar.put(1);
+				`uvm_info("ERR","read address completed",UVM_LOW)
 				ar_r.put(1);
 			end
 			
 			begin
 				ar_r.get(1);
 				r.get(1);
+				`uvm_info("ERR","read data started",UVM_LOW)
 				read_data_channel(q5.pop_front());
 				r.put(1);
+				`uvm_info("ERR","read data completed",UVM_LOW)
 			end
 		join_any
 	endtask : send_to_dut
@@ -158,15 +168,15 @@ class axi_driver extends uvm_driver #(axi_xtn);
 					vif.axi_drv_cb.wstrb <= xtn.wstrb[i];
 				
 					if(i == (xtn.awlen))
-						vif.axi_drv_cb.wlast <= xtn.wlast;
+						vif.axi_drv_cb.wlast <= 1'b1;
 					else
 						vif.axi_drv_cb.wlast <= xtn.wlast;
 					
 					wait(vif.axi_drv_cb.wready)
-					@(vif.axi_drv_cb.wready);
+					@(vif.axi_drv_cb);
+					`uvm_info("AXI_DRV",$sformatf("W_axi_xtn: \n %p",xtn.sprint()),UVM_LOW)
 					vif.axi_drv_cb.wvalid <= 1'b0;
 					vif.axi_drv_cb.wlast <= 1'b0;
-					`uvm_info("AXI_DRV",$sformatf("W_axi_xtn: \n %p",xtn.sprint()),UVM_LOW)
 					@(vif.axi_drv_cb)
 					repeat(xtn.delay_cycles)
 					@(vif.axi_drv_cb);
@@ -204,7 +214,7 @@ class axi_driver extends uvm_driver #(axi_xtn);
 	endtask : read_addr_channel
 
 	task read_data_channel (axi_xtn xtn);
-		repeat(vif.axi_drv_cb.arlen + 1)
+		repeat(xtn.arlen + 1)
 			begin
 				@(vif.axi_drv_cb)
 				$display("read_data_channel");

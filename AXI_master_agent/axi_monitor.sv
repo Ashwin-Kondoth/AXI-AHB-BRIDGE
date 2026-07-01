@@ -174,7 +174,7 @@ class axi_monitor extends uvm_monitor;
 				@(vif.axi_mon_cb);
 				axi_write_data_monitor_port.write(axi_write_data);
 			end
-		`uvm_info("AXI_MON",$sformatf("axi_trans: \n %p",xtn1.sprint()),UVM_LOW)
+		`uvm_info("AXI_MON_WD",$sformatf("axi_trans: \n %p",xtn1.sprint()),UVM_LOW)
 		q1.push_back(xtn1);
 	endtask : wr_data_channel
 
@@ -189,7 +189,7 @@ class axi_monitor extends uvm_monitor;
 		xtn2.bresp = vif.axi_mon_cb.bresp;
 		xtn2.bvalid = vif.axi_mon_cb.bvalid;
 		axi_monitor_port.write(xtn2);
-		`uvm_info("AXI_MON",$sformatf("axi_trans: \n %p",xtn1.sprint()),UVM_LOW)
+		`uvm_info("AXI_MON_WB",$sformatf("axi_trans: \n %p",xtn1.sprint()),UVM_LOW)
 		@(vif.axi_mon_cb);
 	endtask : wr_resp_channel
 
@@ -234,7 +234,7 @@ class axi_monitor extends uvm_monitor;
 				axi_read_data_monitor_port.write(axi_read_data);
 			end
 		axi_monitor_port.write(xtn4);
-		`uvm_info("AXI_MON",$sformatf("axi_trans: \n %p",xtn4.sprint()),UVM_LOW)
+		`uvm_info("AXI_MON_RD",$sformatf("axi_trans: \n %p",xtn4.sprint()),UVM_LOW)
 	endtask : rd_data_channel
 				
 endclass : axi_monitor

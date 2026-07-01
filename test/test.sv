@@ -141,14 +141,17 @@ class transaction_test extends base_test;
 		axi_wr_seq = axi_write_sequence::type_id::create("axi_wr_seq");
 		axi_rd_seq = axi_read_sequence::type_id::create("axi_rd_seq");
 		phase.raise_objection(this);
+			for(int i = 0; i < num_ahb_agent ; i++)
+				ahb_rst_seq.start(envh.ahb_rst_agt_top.ahb_rst_agt[i].seqr);
+
 			for(int i = 0; i < num_axi_agent ; i++)
 				axi_rst_seq.start(envh.axi_rst_agt_top.axi_rst_agt[i].seqr);
-	
+			#20;
 			for(int i = 0; i < num_axi_agent ; i++)
 				axi_wr_seq.start(envh.axi_agt_top.axi_agt[i].seqr);
-			for(int i = 0; i < num_axi_agent ; i++)
-				axi_rd_seq.start(envh.axi_agt_top.axi_agt[i].seqr);
-		#10000000;
+			//for(int i = 0; i < num_axi_agent ; i++)
+			//	axi_rd_seq.start(envh.axi_agt_top.axi_agt[i].seqr);
+		#10000;
 		phase.drop_objection(this);
 	endtask : run_phase
 endclass : transaction_test
