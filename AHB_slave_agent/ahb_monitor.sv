@@ -47,6 +47,10 @@ endclass : ahb_rst_monitor
 
 class ahb_monitor extends uvm_monitor;
 	`uvm_component_utils(ahb_monitor)
+	ahb_xtn xtn;
+
+	ahb_config cfg;
+	virtual ahb_if.AHB_MON_MP vif;
 
 	uvm_analysis_port #(ahb_xtn) monitor_port;
 
@@ -55,6 +59,49 @@ class ahb_monitor extends uvm_monitor;
 		monitor_port = new("monitor_port",this);
 	endfunction : new
 
+	function void build_phase(uvm_phase phase);
+		 if(!uvm_config_db #(ahb_config)::get(this,"","ahb_config",cfg))
+			`uvm_fatal("AHB_MON","Get failed for ahb_cfg")
+	endfunction : build_phase
+
+	function void connect_phase(uvm_phase phase);
+		vif = cfg.vif;
+	endfunction : connect_phase
+
+	task run_phase(uvm_phase phase);
+		forever 
+			collect_data();
+	endtask : run_phase
+
+	task collect_data();
+		xtn = ahb_xtn::type_id::create("xtn");
+		begin
+			wait((vif.ahb_mon_cb.hready == 1'b1) && (vif.ahb_mon_cb.htrans == 2'b10));
+			xtn.haddr = vif.ahb_mon_cb.haddr;
+			xtn.htrans = vif.ahb_mon_cb.htrans;
+			xtn.hburst = vif.ahb_mon_cb.hburst;
+			xtn.hsize = vif.ahb_mon_cb.hsize;
+			xtn.hwrite = vif.ahb_mon_cb.hwrite;
+			xtn.hready = vif.ahb_mon_cb.hready;
+			xtn.hresp = vif.ahb_mon_cb.hresp;
+
+			if(vif.ahb_mon_cb.hwrite == 1'b1)
+				begin
+					@(vif.ahb_mon_cb);
+					wait(vif.ahb_mon_cb.hready == 1'b1)
+					xtn.hwdata = vif.ahb_mon_cb.hwdata;
+					monitor_port.write(xtn);
+				end
+			else	
+				begin
+					@(vif.ahb_mon_cb);
+					wait(vif.ahb_mon_cb.hready == 1'b1)
+					xtn.hrdata = vif.ahb_mon_cb.hrdata;
+					monitor_port.write(xtn);
+				end
+		end
+		`uvm_info("AHB_MON",$sformatf("ahb_trans: \n %p",xtn.sprint()),UVM_LOW)
+	endtask : collect_data
 endclass : ahb_monitor
 	
 

@@ -37,7 +37,7 @@ class axi_write_sequence extends axi_base_sequence;
 	task body;
 		req = axi_xtn::type_id::create("req");
         start_item(req);
-        if(!req.randomize() with {awvalid == 1'b1; wvalid == 1'b1; arvalid == 1'b0; awburst == 2'b01; awlen inside {[0:15]}; awsize inside {[0:1]};})
+        if(!req.randomize() with {awvalid == 1'b1; wvalid == 1'b1; arvalid == 1'b0; awburst == 2'b01; awlen == 8'h3; awsize inside {[0:1]};})
             `uvm_fatal("AXI_WR_SEQ","Randomize failed")
         finish_item(req);
     endtask : body
@@ -55,7 +55,7 @@ class axi_read_sequence extends axi_base_sequence;
 	task body;
 		req = axi_xtn::type_id::create("req");
         start_item(req);
-        if(!req.randomize() with {awvalid == 1'b0; wvalid == 1'b0; arvalid == 1'b1; arburst == 2'b01; araddr == 0; arlen inside {[0:15]};})
+        if(!req.randomize() with {awvalid == 1'b0; wvalid == 1'b0; arvalid == 1'b1; arburst == 2'b01; arlen == 8'd3; arsize inside {[0:1]}; awburst == 2'b01; awlen == 8'h3; awsize inside {[0:1]};})
             `uvm_fatal("AXI_RD_SEQ","Randomize failed")
         finish_item(req);
     endtask : body

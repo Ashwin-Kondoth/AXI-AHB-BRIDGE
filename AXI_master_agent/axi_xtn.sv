@@ -48,13 +48,13 @@ class axi_xtn extends uvm_sequence_item;
 	rand bit        arvalid;
 		 bit        arready;
 	rand bit [7:0]  bid;
-	rand bit [1:0]  bresp;
+		 bit [1:0]  bresp;
 		 bit        bvalid;
 		 bit        bready;
 	rand bit [7:0]  rid;
-	rand bit [63:0] rdata[];
-	rand bit [1:0]  rresp[];
-	rand bit        rlast;
+		 bit [63:0] rdata[];
+		 bit [1:0]  rresp[];
+		 bit        rlast;
 		 bit        rvalid;
 		 bit        rready;
 

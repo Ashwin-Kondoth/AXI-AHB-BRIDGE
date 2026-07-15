@@ -139,6 +139,8 @@ class axi_driver extends uvm_driver #(axi_xtn);
 	endtask : send_to_dut
 
 	task write_addr_channel(axi_xtn xtn);
+		if(xtn.awvalid)
+		begin
 		@(vif.axi_drv_cb)
 			begin
 				$display("write_addr_channel");
@@ -155,9 +157,11 @@ class axi_driver extends uvm_driver #(axi_xtn);
 				repeat (xtn.delay_cycles)
 					@(vif.axi_drv_cb);
 			end
+		end
 	endtask : write_addr_channel
 
 	task write_data_channel(axi_xtn xtn);
+		if(xtn.wvalid)
 		begin
 			$display("write_data_channel");
 			foreach(xtn.wdata[i])
@@ -195,6 +199,8 @@ class axi_driver extends uvm_driver #(axi_xtn);
 	endtask : write_resp_channel
 	
 	task read_addr_channel (axi_xtn xtn);
+		if(xtn.arvalid)
+		begin
 		@(vif.axi_drv_cb)
 		begin
 			$display("read_addr_channel");
@@ -210,6 +216,7 @@ class axi_driver extends uvm_driver #(axi_xtn);
 			`uvm_info("AXI_DRV",$sformatf("AR_axi_xtn: \n %p",xtn.sprint()),UVM_LOW)
 			repeat(xtn.delay_cycles)
 			@(vif.axi_drv_cb);
+		end
 		end
 	endtask : read_addr_channel
 
