@@ -74,7 +74,7 @@ class ahb_driver extends uvm_driver #(ahb_xtn);
 	endtask : run_phase
 
 	task send_to_dut(ahb_xtn xtn);
-		$display("AHB DRIVER STARTED");
+		//$display("AHB DRIVER STARTED : %0t",$time);
 		vif.ahb_drv_cb.hmaster <= 4'b0;
 		if(xtn.resp == 0) //OKAY
 		begin

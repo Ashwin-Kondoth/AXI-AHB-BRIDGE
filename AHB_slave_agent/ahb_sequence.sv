@@ -16,11 +16,35 @@ class ahb_reset_sequence extends uvm_sequence #(ahb_rst_xtn);
 
 endclass : ahb_reset_sequence
 
-class ahb_sequence extends uvm_sequence #(ahb_xtn);
+class ahb_ok_sequence extends uvm_sequence #(ahb_xtn);
 
-    `uvm_object_utils(ahb_sequence)
+    env_config cfg;
 
-    function new(string name = "ahb_sequence");
+    `uvm_object_utils(ahb_ok_sequence)
+
+    function new(string name = "ahb_ok_sequence");
+        super.new(name);
+    endfunction : new
+
+    task body;
+        req = ahb_xtn::type_id::create("req");
+        if(!uvm_config_db #(env_config)::get(null,get_full_name,"env_config",cfg))
+            `uvm_fatal("AHB_SEQ","get failed for env_config")
+        repeat(2 * cfg.ahb_length.pop_front())
+            begin
+               start_item(req);
+               assert(req.randomize() with {delay_cycles == 2; resp == 0;});
+               finish_item(req); 
+            end
+    endtask : body
+endclass : ahb_ok_sequence
+
+
+class ahb_ok_wait_sequence extends uvm_sequence #(ahb_xtn);
+
+    `uvm_object_utils(ahb_ok_wait_sequence)
+
+    function new(string name = "ahb_ok_wait_sequence");
         super.new(name);
     endfunction : new
 
@@ -30,8 +54,29 @@ class ahb_sequence extends uvm_sequence #(ahb_xtn);
         repeat(4)
             begin
                start_item(req);
-               assert(req.randomize() with {delay_cycles == 2; resp == 0;});
+               assert(req.randomize() with {delay_cycles == 2; resp == 1;});
                finish_item(req); 
             end
     endtask : body
-endclass : ahb_sequence
+endclass : ahb_ok_wait_sequence
+
+
+class ahb_error_sequence extends uvm_sequence #(ahb_xtn);
+
+    `uvm_object_utils(ahb_error_sequence)
+
+    function new(string name = "ahb_error_sequence");
+        super.new(name);
+    endfunction : new
+
+    task body;
+        req = ahb_xtn::type_id::create("req");
+
+        repeat(4)
+            begin
+               start_item(req);
+               assert(req.randomize() with {delay_cycles == 2; resp == 2;});
+               finish_item(req); 
+            end
+    endtask : body
+endclass : ahb_error_sequence

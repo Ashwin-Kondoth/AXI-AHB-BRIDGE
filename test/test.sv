@@ -22,6 +22,16 @@ class base_test extends uvm_test;
 
 	bit has_scoreboard = 1;
 	
+	ahb_reset_sequence ahb_rst_seq;
+	axi_reset_sequence axi_rst_seq;
+	axi_INCR_write_sequence axi_incr_wr_seq;
+	axi_INCR_read_sequence axi_incr_rd_seq;
+	axi_WRAP_write_sequence axi_wrap_wr_seq;
+	axi_WRAP_read_sequence axi_wrap_rd_seq;
+	ahb_ok_sequence ahb_ok_seq;
+	ahb_ok_wait_sequence ahb_ok_wait_seq;
+	ahb_error_sequence ahb_error_seq;
+
 	extern function void build_phase(uvm_phase phase);
 	extern function void configure_env;
 	extern function void end_of_elaboration_phase(uvm_phase phase);
@@ -97,9 +107,6 @@ class reset_test extends base_test;
 		super.new(name,parent);
 	endfunction : new
 
-	ahb_reset_sequence ahb_rst_seq;
-	axi_reset_sequence axi_rst_seq;
-
 	function void build_phase(uvm_phase phase);
 		super.build_phase(phase);
 	endfunction : build_phase
@@ -108,28 +115,21 @@ class reset_test extends base_test;
 		ahb_rst_seq = ahb_reset_sequence::type_id::create("ahb_rst_seq");
 		axi_rst_seq = axi_reset_sequence::type_id::create("axi_rst_seq");
 		phase.raise_objection(this);
-		fork
 			for(int i = 0; i < num_axi_agent ; i++)
 				axi_rst_seq.start(envh.axi_rst_agt_top.axi_rst_agt[i].seqr);
 			for(int i = 0; i < num_ahb_agent ; i++)
 				ahb_rst_seq.start(envh.ahb_rst_agt_top.ahb_rst_agt[i].seqr);
-		join
+		#20;
 		phase.drop_objection(this);
 	endtask : run_phase
 endclass : reset_test
 
-class transaction_test extends base_test;
-	`uvm_component_utils(transaction_test)
+class INCR_ok_test extends base_test;
+	`uvm_component_utils(INCR_ok_test)
 
-	function new(string name = "transaction_test",uvm_component parent);
+	function new(string name = "INCR_ok_test",uvm_component parent);
 		super.new(name,parent);
 	endfunction : new
-
-	ahb_reset_sequence ahb_rst_seq;
-	axi_reset_sequence axi_rst_seq;
-	ahb_sequence ahb_seq;
-	axi_write_sequence axi_wr_seq;
-	axi_read_sequence axi_rd_seq;
 
 	function void build_phase(uvm_phase phase);
 		super.build_phase(phase);
@@ -138,34 +138,51 @@ class transaction_test extends base_test;
 	task run_phase(uvm_phase phase);
 		ahb_rst_seq = ahb_reset_sequence::type_id::create("ahb_rst_seq");
 		axi_rst_seq = axi_reset_sequence::type_id::create("axi_rst_seq");
-		ahb_seq = ahb_sequence::type_id::create("ahb_seq");
-		axi_wr_seq = axi_write_sequence::type_id::create("axi_wr_seq");
-		axi_rd_seq = axi_read_sequence::type_id::create("axi_rd_seq");
+		ahb_ok_seq = ahb_ok_sequence::type_id::create("ahb_ok_seq");
+		axi_incr_wr_seq = axi_INCR_write_sequence::type_id::create("axi_incr_wr_seq");
+		axi_incr_rd_seq = axi_INCR_read_sequence::type_id::create("axi_incr_rd_seq");
 		phase.raise_objection(this);
 			for(int i = 0; i < num_ahb_agent ; i++)
 				ahb_rst_seq.start(envh.ahb_rst_agt_top.ahb_rst_agt[i].seqr);
 
 			for(int i = 0; i < num_axi_agent ; i++)
 				axi_rst_seq.start(envh.axi_rst_agt_top.axi_rst_agt[i].seqr);
+
 			#20;
+
 			for(int i = 0; i < num_axi_agent ; i++)
-				axi_wr_seq.start(envh.axi_agt_top.axi_agt[i].seqr);
+			begin
+				axi_incr_wr_seq.start(envh.axi_agt_top.axi_agt[i].seqr);
+				cfg.ahb_length.push_back(envh.axi_agt_top.axi_agt[i].drv.req.awlen);
+			end
+			uvm_config_db #(env_config)::set(this,"*","env_config",cfg);
 			#300;
 			for(int i = 0; i < num_ahb_agent ; i++)
-				ahb_seq.start(envh.ahb_agt_top.ahb_agt[i].seqr);
+				ahb_ok_seq.start(envh.ahb_agt_top.ahb_agt[i].seqr);
+
 			#300;
+
 			for(int i = 0; i < num_ahb_agent ; i++)
 				ahb_rst_seq.start(envh.ahb_rst_agt_top.ahb_rst_agt[i].seqr);
 
 			for(int i = 0; i < num_axi_agent ; i++)
 				axi_rst_seq.start(envh.axi_rst_agt_top.axi_rst_agt[i].seqr);
+
 			#20;
+
 			for(int i = 0; i < num_axi_agent ; i++)
-				axi_rd_seq.start(envh.axi_agt_top.axi_agt[i].seqr);
+			begin
+				axi_incr_rd_seq.start(envh.axi_agt_top.axi_agt[i].seqr);
+				cfg.ahb_length.push_back(envh.axi_agt_top.axi_agt[i].drv.req.arlen);
+			end
+			uvm_config_db #(env_config)::set(this,"*","env_config",cfg);
+
 			#300;
 			for(int i = 0; i < num_ahb_agent ; i++)
-				ahb_seq.start(envh.ahb_agt_top.ahb_agt[i].seqr);
-		#10000;
+				ahb_ok_seq.start(envh.ahb_agt_top.ahb_agt[i].seqr);
+
+		#300;
+
 		phase.drop_objection(this);
 	endtask : run_phase
-endclass : transaction_test
+endclass : INCR_ok_test

@@ -17,5 +17,6 @@ class env_config extends uvm_object;
 	axi_config   axi_cfg[];
 	ahb_rst_config   ahb_rst_cfg[];
 	axi_rst_config   axi_rst_cfg[];
+	bit [7:0] ahb_length [$];
 
 endclass : env_config
