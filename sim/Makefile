@@ -77,7 +77,7 @@ run_test1_Questa: clean sv_cmp_Questa
 	vcover report  -cvg  -details -nocompactcrossbins -codeAll -assert -directive -html cov1
 
 run_test2_Questa: clean sv_cmp_Questa
-	vsim -cvgperinstance $(VSIMOPT) $(VSIMCOV) $(VSIMBATCH2)  -wlf wave2.wlf -l test2.log  -sv_seed 709218636  work.top +UVM_TESTNAME=cpha0_cpol0_lsb_test
+	vsim -cvgperinstance $(VSIMOPT) $(VSIMCOV) $(VSIMBATCH2)  -wlf wave2.wlf -l test2.log  -sv_seed random  work.top +UVM_TESTNAME=INCR_ok_wait_test
 	vcover report  -cvg  -details -nocompactcrossbins -codeAll -assert -directive -html cov2
 
 run_test3_Questa: clean sv_cmp_Questa

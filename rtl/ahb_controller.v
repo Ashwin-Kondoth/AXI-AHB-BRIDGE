@@ -295,10 +295,10 @@ module ahb_controller(
 						id_send_r_en_reg <= 1'b1;
 						size_r_en_reg <= 1'b1;
 
-						rdata_w_en <= 1'b0;
-						ahb_rdata <= 64'b0;
-						resp_w_en <= 1'b0;
-						ahb_resp <= 2'b0;
+						rdata_w_en <= 1'b1;//0;
+						ahb_rdata <= hrdata;//64'b0;
+						resp_w_en <= 1'b1;//0;
+						ahb_resp <= hresp;//2'b0;
 						id_resp_w_en <= 1'b1;
 						ahb_id_resp <= {hwrite,id_reg};
 					end
@@ -317,10 +317,10 @@ module ahb_controller(
 						id_send_r_en_reg <= 1'b0;
 						size_r_en_reg <= 1'b0;
 
-						rdata_w_en <= 1'b0;
-						ahb_rdata <= 64'b0;
-						resp_w_en <= 1'b0;
-						ahb_resp <= 2'b0;
+						rdata_w_en <= 1'b1;//0;
+						ahb_rdata <= hrdata;//64'b0;
+						resp_w_en <= 1'b1;//0;
+						ahb_resp <= hresp;//2'b0;
 						id_resp_w_en <= 1'b1;
 						ahb_id_resp <= {hwrite,id_reg};
 						read_lock <= 1'b1;
@@ -413,8 +413,8 @@ module ahb_controller(
 						ahb_rdata <= hrdata;
 						resp_w_en <= 1'b1;
 						ahb_resp <= hresp;
-						id_resp_w_en <= 1'b0;
-						ahb_id_resp <= 10'b0;
+						id_resp_w_en <= 1'b1;//0;
+						ahb_id_resp <= {1'b0,1'b1,id_reg};//10'b0;
 					end
 					else if(hready == 1'b0)begin
 						haddr <= haddr;
@@ -436,8 +436,8 @@ module ahb_controller(
 							ahb_rdata <= 64'b0;
 							resp_w_en <= 1'b0;
 							ahb_resp <= 2'b0;
-							id_resp_w_en <= 1'b1;
-							ahb_id_resp <= {hwrite,id_reg};
+							id_resp_w_en <= 1'b0;//changed
+							ahb_id_resp <= 10'b0;//{hwrite,ahb_id};changed
 						end
 						else begin
 							rdata_w_en <= 1'b0;

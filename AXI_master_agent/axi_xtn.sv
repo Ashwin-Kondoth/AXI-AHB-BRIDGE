@@ -134,11 +134,12 @@ class axi_xtn extends uvm_sequence_item;
 		printer.print_field("rid",rid,8,UVM_HEX);
 		foreach(rdata[i])
 			printer.print_field($sformatf("rdata[%0d]",i),rdata[i],64,UVM_HEX);
-		foreach(rresp[i])
-			printer.print_field($sformatf("rresp[%0d]",i),rresp[i],2,UVM_HEX);
+		
 		printer.print_field("rlast",rlast,1,UVM_BIN);
 		printer.print_field("rvalid",rvalid,1,UVM_BIN);
 		printer.print_field("rready",rready,1,UVM_BIN);
+		foreach(rresp[i])
+			printer.print_field($sformatf("rresp[%0d]",i),rresp[i],2,UVM_HEX);
 
 	endfunction : do_print
 endclass : axi_xtn

@@ -55,7 +55,7 @@ class axi_INCR_read_sequence extends axi_base_sequence;
 	task body;
 		req = axi_xtn::type_id::create("req");
         start_item(req);
-        if(!req.randomize() with {awvalid == 1'b0; wvalid == 1'b0; arvalid == 1'b1; arburst == 2'b01; arlen inside {[0:15]}; arsize inside {[0:3]}; awburst == 2'b01; awlen inside {[0:15]}; awsize inside {[0:3]};})
+        if(!req.randomize() with {awvalid == 1'b0; wvalid == 1'b0; arvalid == 1'b1; arburst == 2'b01; arlen == 3; arsize inside {[0:3]}; awburst == 2'b01; awlen inside {[0:15]}; awsize inside {[0:3]};})
             `uvm_fatal("AXI_RD_SEQ","Randomize failed")
         finish_item(req);
     endtask : body

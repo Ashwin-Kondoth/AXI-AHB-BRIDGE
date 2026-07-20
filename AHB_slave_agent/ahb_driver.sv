@@ -82,9 +82,9 @@ class ahb_driver extends uvm_driver #(ahb_xtn);
 			begin
 				vif.ahb_drv_cb.hready <= 1'b1;
 				vif.ahb_drv_cb.hresp <= 2'b00;
-				@(vif.ahb_drv_cb);
-				vif.ahb_drv_cb.hready <= 1'b1;//change
-				vif.ahb_drv_cb.hresp <= 2'b00;
+				 @(vif.ahb_drv_cb);
+                vif.ahb_drv_cb.hready <= 1'b1;
+                vif.ahb_drv_cb.hresp <= 2'b00;
 			end
 			else if(vif.ahb_drv_cb.hwrite == 1'b0)
 			begin
@@ -118,12 +118,13 @@ class ahb_driver extends uvm_driver #(ahb_xtn);
 				vif.ahb_drv_cb.hready <= 1'b1;
 				vif.ahb_drv_cb.hresp <= 2'b00;
 				vif.ahb_drv_cb.hrdata <= xtn.hrdata;
+				//@(vif.ahb_drv_cb);
+				//vif.ahb_drv_cb.hready <= 1'b1;
+				//vif.ahb_drv_cb.hresp <= 2'b00;
+				//vif.ahb_drv_cb.hrdata <= xtn.hrdata;
 				@(vif.ahb_drv_cb);
-				vif.ahb_drv_cb.hready <= 1'b1;
-				vif.ahb_drv_cb.hresp <= 2'b00;
-				vif.ahb_drv_cb.hrdata <= xtn.hrdata;
-				@(vif.ahb_drv_cb);
-				vif.ahb_drv_cb.hready <= 1'b0;
+				//vif.ahb_drv_cb.hready <= 1'b0;
+				
 			end
 		end
 		else if(xtn.resp == 2)

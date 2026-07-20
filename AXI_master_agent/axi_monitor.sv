@@ -133,7 +133,6 @@ class axi_monitor extends uvm_monitor;
 
 	task wr_addr_channel;
 		wait((vif.axi_mon_cb.awvalid) && (vif.axi_mon_cb.awready))
-		$display("MON write_addr_channel");
 		xtn.awid = vif.axi_mon_cb.awid;
 		xtn.awvalid = vif.axi_mon_cb.awvalid;
 		xtn.awready = vif.axi_mon_cb.awready;
@@ -146,7 +145,6 @@ class axi_monitor extends uvm_monitor;
 	endtask : wr_addr_channel
 
 	task wr_data_channel(axi_xtn xtn);
-		$display("MON write_data_channel");
 		xtn1 = axi_xtn::type_id::create("xtn1");
 		xtn1 = xtn;
 		xtn1.wdata = new[xtn.awlen + 1];
@@ -182,7 +180,6 @@ class axi_monitor extends uvm_monitor;
 		xtn2 = axi_xtn::type_id::create("xtn2");
 		xtn2 = xtn1;
 		wait((vif.axi_mon_cb.bvalid) && (vif.axi_mon_cb.bready))
-		$display("MON write_resp_channel");
 		xtn.bvalid = vif.axi_mon_cb.bvalid;
 		xtn.bready = vif.axi_mon_cb.bready;
 		xtn2.bid = vif.axi_mon_cb.bid;
@@ -197,7 +194,6 @@ class axi_monitor extends uvm_monitor;
 		xtn3 = axi_xtn::type_id::create("xtn3");
 		@(vif.axi_mon_cb);
 		wait((vif.axi_mon_cb.arvalid) && (vif.axi_mon_cb.arready))
-		$display("MON read_addr_channel");
 		xtn3.arid = vif.axi_mon_cb.arid;
 		xtn3.arready = vif.axi_mon_cb.arready;
 		xtn3.arvalid = vif.axi_mon_cb.arvalid;
@@ -213,8 +209,8 @@ class axi_monitor extends uvm_monitor;
 		bit a;
 		xtn4 = axi_xtn::type_id::create("xtn4");
 		xtn4 = xtn3;
-		xtn4.rdata = new[xtn4.arlen + 1];
-		$display("MON read_data_channel");
+		xtn4.rdata = new[xtn4.arlen + 2];
+		`uvm_info("AXI_MON",$sformatf("arlen_mon = %0d",xtn4.arlen),UVM_LOW)
 		foreach(xtn4.rdata[i])
 			begin
 				wait((vif.axi_mon_cb.rvalid) && (vif.axi_mon_cb.rready))
@@ -230,6 +226,7 @@ class axi_monitor extends uvm_monitor;
 						xtn4.rlast = vif.axi_mon_cb.rlast;
 						a = vif.axi_mon_cb.rlast;
 					end
+				`uvm_info("AXI_MON",$sformatf("rdata[%0d] = %0h",i,xtn4.rdata[i]),UVM_LOW)
 				@(vif.axi_mon_cb);
 				axi_read_data_monitor_port.write(axi_read_data);
 			end
