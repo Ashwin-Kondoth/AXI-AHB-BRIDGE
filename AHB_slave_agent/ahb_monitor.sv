@@ -1,7 +1,7 @@
 class ahb_rst_monitor extends uvm_monitor;
 	`uvm_component_utils(ahb_rst_monitor)
 
-	uvm_analysis_port #(ahb_rst_xtn) monitor_port;
+	uvm_analysis_port #(ahb_rst_xtn) ahb_rst_monitor_port;
 
 	ahb_config cfg;
 	ahb_rst_config rst_cfg;
@@ -10,7 +10,7 @@ class ahb_rst_monitor extends uvm_monitor;
 
 	function new (string name = "ahb_rst_monitor",uvm_component parent);
 		super.new(name,parent);
-		monitor_port = new("monitor_port",this);
+		ahb_rst_monitor_port = new("ahb_rst_monitor_port",this);
 	endfunction : new
 
 	function  void build_phase(uvm_phase phase);
@@ -40,6 +40,7 @@ class ahb_rst_monitor extends uvm_monitor;
 		xtn.htrans = vif.ahb_mon_cb.htrans;
 		@(rst_vif.ahb_rst_mon_cb);
 		`uvm_info("AHB_MON",$sformatf("%s",xtn.sprint),UVM_LOW)
+		ahb_rst_monitor_port.write(xtn);
 	endtask : collect_data
 
 endclass : ahb_rst_monitor

@@ -49,7 +49,7 @@ function void env::connect_phase(uvm_phase phase);
 				foreach(sbh[i])
 					begin
 						ahb_agt_top.ahb_agt[i].mon.monitor_port.connect(sbh[i].ahb_fifo.analysis_export);
-						ahb_rst_agt_top.ahb_rst_agt[i].mon.monitor_port.connect(sbh[i].ahb_rst_fifo.analysis_export);
+						ahb_rst_agt_top.ahb_rst_agt[i].mon.ahb_rst_monitor_port.connect(sbh[i].ahb_rst_fifo.analysis_export);
 					end
 		end
 
@@ -59,7 +59,9 @@ function void env::connect_phase(uvm_phase phase);
 				foreach(sbh[i])
 					begin
 						axi_agt_top.axi_agt[i].mon.axi_monitor_port.connect(sbh[i].axi_fifo.analysis_export);
-						axi_rst_agt_top.axi_rst_agt[i].mon.monitor_port.connect(sbh[i].axi_rst_fifo.analysis_export);
+						axi_rst_agt_top.axi_rst_agt[i].mon.axi_rst_monitor_port.connect(sbh[i].axi_rst_fifo.analysis_export);
+						axi_agt_top.axi_agt[i].mon.axi_write_data_monitor_port.connect(sbh[i].axi_wdata_fifo.analysis_export);
+						axi_agt_top.axi_agt[i].mon.axi_read_data_monitor_port.connect(sbh[i].axi_rdata_fifo.analysis_export);
 					end
 		end
 endfunction : connect_phase

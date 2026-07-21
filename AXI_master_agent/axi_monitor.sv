@@ -1,7 +1,7 @@
 class axi_rst_monitor extends uvm_monitor;
 	`uvm_component_utils(axi_rst_monitor)
 
-	uvm_analysis_port #(axi_rst_xtn) monitor_port;
+	uvm_analysis_port #(axi_rst_xtn) axi_rst_monitor_port;
 
 	axi_config cfg;
 	axi_rst_config rst_cfg;
@@ -10,7 +10,7 @@ class axi_rst_monitor extends uvm_monitor;
 
 	function new (string name = "axi_rst_monitor",uvm_component parent);
 		super.new(name,parent);
-		monitor_port = new("monitor_port",this);
+		axi_rst_monitor_port = new("axi_rst_monitor_port",this);
 	endfunction : new
 
 	function  void build_phase(uvm_phase phase);
@@ -40,6 +40,7 @@ class axi_rst_monitor extends uvm_monitor;
 		xtn.rvalid = vif.axi_mon_cb.rvalid;
 		@(rst_vif.axi_rst_mon_cb);
 		`uvm_info("AXI_MON",$sformatf("%s",xtn.sprint),UVM_LOW)
+		axi_rst_monitor_port.write(xtn);
 	endtask : collect_data
 
 endclass : axi_rst_monitor

@@ -222,7 +222,7 @@ class axi_driver extends uvm_driver #(axi_xtn);
 				wait(vif.axi_drv_cb.rvalid)
 				@(vif.axi_drv_cb);
 				vif.axi_drv_cb.rready <= 1'b0;
-				`uvm_info("AXI_DRV",$sformatf("R_axi_xtn: \n %p",xtn.sprint()),UVM_LOW)
+				//`uvm_info("AXI_DRV",$sformatf("R_axi_xtn: \n %p",xtn.sprint()),UVM_LOW)
 				repeat(xtn.delay_cycles)
 				@(vif.axi_drv_cb);
 			end
