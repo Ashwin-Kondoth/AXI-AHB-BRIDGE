@@ -26,6 +26,8 @@ class base_test extends uvm_test;
 	axi_reset_sequence axi_rst_seq;
 	axi_INCR_write_sequence axi_incr_wr_seq;
 	axi_INCR_read_sequence axi_incr_rd_seq;
+	axi_FIXED_write_sequence axi_fixed_wr_seq;
+	axi_FIXED_read_sequence axi_fixed_rd_seq;
 	axi_WRAP_write_sequence axi_wrap_wr_seq;
 	axi_WRAP_read_sequence axi_wrap_rd_seq;
 	ahb_ok_sequence ahb_ok_seq;
@@ -160,7 +162,7 @@ class INCR_ok_test extends base_test;
 			for(int i = 0; i < num_ahb_agent ; i++)
 				ahb_ok_seq.start(envh.ahb_agt_top.ahb_agt[i].seqr);
 
-			#900;
+			#300;
 
 			for(int i = 0; i < num_ahb_agent ; i++)
 				ahb_rst_seq.start(envh.ahb_rst_agt_top.ahb_rst_agt[i].seqr);
@@ -181,7 +183,7 @@ class INCR_ok_test extends base_test;
 			for(int i = 0; i < num_ahb_agent ; i++)
 				ahb_ok_seq.start(envh.ahb_agt_top.ahb_agt[i].seqr);
 
-		#600;
+		#300;
 
 		phase.drop_objection(this);
 	endtask : run_phase
@@ -251,4 +253,444 @@ class INCR_ok_wait_test extends base_test;
 	endtask : run_phase
 endclass : INCR_ok_wait_test
 
+class INCR_error_test extends base_test;
+	`uvm_component_utils(INCR_error_test)
 
+	function new(string name = "INCR_error_test",uvm_component parent);
+		super.new(name,parent);
+	endfunction : new
+
+	function void build_phase(uvm_phase phase);
+		super.build_phase(phase);
+	endfunction : build_phase
+
+	task run_phase(uvm_phase phase);
+		ahb_rst_seq = ahb_reset_sequence::type_id::create("ahb_rst_seq");
+		axi_rst_seq = axi_reset_sequence::type_id::create("axi_rst_seq");
+		ahb_error_seq = ahb_error_sequence::type_id::create("ahb_error_seq");
+		axi_incr_wr_seq = axi_INCR_write_sequence::type_id::create("axi_incr_wr_seq");
+		axi_incr_rd_seq = axi_INCR_read_sequence::type_id::create("axi_incr_rd_seq");
+		phase.raise_objection(this);
+			for(int i = 0; i < num_ahb_agent ; i++)
+				ahb_rst_seq.start(envh.ahb_rst_agt_top.ahb_rst_agt[i].seqr);
+
+			for(int i = 0; i < num_axi_agent ; i++)
+				axi_rst_seq.start(envh.axi_rst_agt_top.axi_rst_agt[i].seqr);
+
+			#20;
+
+			for(int i = 0; i < num_axi_agent ; i++)
+			begin
+				axi_incr_wr_seq.start(envh.axi_agt_top.axi_agt[i].seqr);
+				cfg.ahb_length.push_back(envh.axi_agt_top.axi_agt[i].drv.req.awlen);
+			end
+			uvm_config_db #(env_config)::set(this,"*","env_config",cfg);
+			#300;
+			for(int i = 0; i < num_ahb_agent ; i++)
+				ahb_error_seq.start(envh.ahb_agt_top.ahb_agt[i].seqr);
+
+			#300;
+
+			for(int i = 0; i < num_ahb_agent ; i++)
+				ahb_rst_seq.start(envh.ahb_rst_agt_top.ahb_rst_agt[i].seqr);
+
+			for(int i = 0; i < num_axi_agent ; i++)
+				axi_rst_seq.start(envh.axi_rst_agt_top.axi_rst_agt[i].seqr);
+
+			#20;
+
+			for(int i = 0; i < num_axi_agent ; i++)
+			begin
+				axi_incr_rd_seq.start(envh.axi_agt_top.axi_agt[i].seqr);
+				cfg.ahb_length.push_back(2 * (envh.axi_agt_top.axi_agt[i].drv.req.arlen + 1));
+			end
+			uvm_config_db #(env_config)::set(this,"*","env_config",cfg);
+
+			#300;
+			for(int i = 0; i < num_ahb_agent ; i++)
+				ahb_error_seq.start(envh.ahb_agt_top.ahb_agt[i].seqr);
+
+		#300;
+
+		phase.drop_objection(this);
+	endtask : run_phase
+endclass : INCR_error_test
+
+class FIXED_ok_test extends base_test;
+	`uvm_component_utils(FIXED_ok_test)
+
+	function new(string name = "FIXED_ok_test",uvm_component parent);
+		super.new(name,parent);
+	endfunction : new
+
+	function void build_phase(uvm_phase phase);
+		super.build_phase(phase);
+	endfunction : build_phase
+
+	task run_phase(uvm_phase phase);
+		ahb_rst_seq = ahb_reset_sequence::type_id::create("ahb_rst_seq");
+		axi_rst_seq = axi_reset_sequence::type_id::create("axi_rst_seq");
+		ahb_ok_seq = ahb_ok_sequence::type_id::create("ahb_ok_seq");
+		axi_fixed_wr_seq = axi_FIXED_write_sequence::type_id::create("axi_fixed_wr_seq");
+		axi_fixed_rd_seq = axi_FIXED_read_sequence::type_id::create("axi_fixed_rd_seq");
+		phase.raise_objection(this);
+			for(int i = 0; i < num_ahb_agent ; i++)
+				ahb_rst_seq.start(envh.ahb_rst_agt_top.ahb_rst_agt[i].seqr);
+
+			for(int i = 0; i < num_axi_agent ; i++)
+				axi_rst_seq.start(envh.axi_rst_agt_top.axi_rst_agt[i].seqr);
+
+			#20;
+
+			for(int i = 0; i < num_axi_agent ; i++)
+			begin
+				axi_fixed_wr_seq.start(envh.axi_agt_top.axi_agt[i].seqr);
+				cfg.ahb_length.push_back(envh.axi_agt_top.axi_agt[i].drv.req.awlen + 1);
+			end
+			uvm_config_db #(env_config)::set(this,"*","env_config",cfg);
+			#300;
+			for(int i = 0; i < num_ahb_agent ; i++)
+				ahb_ok_seq.start(envh.ahb_agt_top.ahb_agt[i].seqr);
+
+			#600;
+
+			for(int i = 0; i < num_ahb_agent ; i++)
+				ahb_rst_seq.start(envh.ahb_rst_agt_top.ahb_rst_agt[i].seqr);
+
+			for(int i = 0; i < num_axi_agent ; i++)
+				axi_rst_seq.start(envh.axi_rst_agt_top.axi_rst_agt[i].seqr);
+
+			#20;
+
+			for(int i = 0; i < num_axi_agent ; i++)
+			begin
+				axi_fixed_rd_seq.start(envh.axi_agt_top.axi_agt[i].seqr);
+				cfg.ahb_length.push_back(2 * (envh.axi_agt_top.axi_agt[i].drv.req.arlen + 1));
+			end
+			uvm_config_db #(env_config)::set(this,"*","env_config",cfg);
+
+			#300;
+			for(int i = 0; i < num_ahb_agent ; i++)
+				ahb_ok_seq.start(envh.ahb_agt_top.ahb_agt[i].seqr);
+
+		#300;
+
+		phase.drop_objection(this);
+	endtask : run_phase
+endclass : FIXED_ok_test
+
+class FIXED_ok_wait_test extends base_test;
+	`uvm_component_utils(FIXED_ok_wait_test)
+
+	function new(string name = "FIXED_ok_wait_test",uvm_component parent);
+		super.new(name,parent);
+	endfunction : new
+
+	function void build_phase(uvm_phase phase);
+		super.build_phase(phase);
+	endfunction : build_phase
+
+	task run_phase(uvm_phase phase);
+		ahb_rst_seq = ahb_reset_sequence::type_id::create("ahb_rst_seq");
+		axi_rst_seq = axi_reset_sequence::type_id::create("axi_rst_seq");
+		ahb_ok_wait_seq = ahb_ok_wait_sequence::type_id::create("ahb_ok_wait_seq");
+		axi_fixed_wr_seq = axi_FIXED_write_sequence::type_id::create("axi_fixed_wr_seq");
+		axi_fixed_rd_seq = axi_FIXED_read_sequence::type_id::create("axi_fixed_rd_seq");
+		phase.raise_objection(this);
+			for(int i = 0; i < num_ahb_agent ; i++)
+				ahb_rst_seq.start(envh.ahb_rst_agt_top.ahb_rst_agt[i].seqr);
+
+			for(int i = 0; i < num_axi_agent ; i++)
+				axi_rst_seq.start(envh.axi_rst_agt_top.axi_rst_agt[i].seqr);
+
+			#20;
+
+			for(int i = 0; i < num_axi_agent ; i++)
+			begin
+				axi_fixed_wr_seq.start(envh.axi_agt_top.axi_agt[i].seqr);
+				cfg.ahb_length.push_back(envh.axi_agt_top.axi_agt[i].drv.req.awlen + 1);
+			end
+			uvm_config_db #(env_config)::set(this,"*","env_config",cfg);
+			#300;
+			for(int i = 0; i < num_ahb_agent ; i++)
+				ahb_ok_wait_seq.start(envh.ahb_agt_top.ahb_agt[i].seqr);
+
+			#300;
+
+			for(int i = 0; i < num_ahb_agent ; i++)
+				ahb_rst_seq.start(envh.ahb_rst_agt_top.ahb_rst_agt[i].seqr);
+
+			for(int i = 0; i < num_axi_agent ; i++)
+				axi_rst_seq.start(envh.axi_rst_agt_top.axi_rst_agt[i].seqr);
+
+			#20;
+
+			for(int i = 0; i < num_axi_agent ; i++)
+			begin
+				axi_fixed_rd_seq.start(envh.axi_agt_top.axi_agt[i].seqr);
+				cfg.ahb_length.push_back(2 * (envh.axi_agt_top.axi_agt[i].drv.req.arlen + 1));
+			end
+			uvm_config_db #(env_config)::set(this,"*","env_config",cfg);
+
+			#300;
+			for(int i = 0; i < num_ahb_agent ; i++)
+				ahb_ok_wait_seq.start(envh.ahb_agt_top.ahb_agt[i].seqr);
+
+		#300;
+
+		phase.drop_objection(this);
+	endtask : run_phase
+endclass : FIXED_ok_wait_test
+
+class FIXED_error_test extends base_test;
+	`uvm_component_utils(FIXED_error_test)
+
+	function new(string name = "FIXED_error_test",uvm_component parent);
+		super.new(name,parent);
+	endfunction : new
+
+	function void build_phase(uvm_phase phase);
+		super.build_phase(phase);
+	endfunction : build_phase
+
+	task run_phase(uvm_phase phase);
+		ahb_rst_seq = ahb_reset_sequence::type_id::create("ahb_rst_seq");
+		axi_rst_seq = axi_reset_sequence::type_id::create("axi_rst_seq");
+		ahb_error_seq = ahb_error_sequence::type_id::create("ahb_error_seq");
+		axi_fixed_wr_seq = axi_FIXED_write_sequence::type_id::create("axi_fixed_wr_seq");
+		axi_fixed_rd_seq = axi_FIXED_read_sequence::type_id::create("axi_fixed_rd_seq");
+		phase.raise_objection(this);
+			for(int i = 0; i < num_ahb_agent ; i++)
+				ahb_rst_seq.start(envh.ahb_rst_agt_top.ahb_rst_agt[i].seqr);
+
+			for(int i = 0; i < num_axi_agent ; i++)
+				axi_rst_seq.start(envh.axi_rst_agt_top.axi_rst_agt[i].seqr);
+
+			#20;
+
+			for(int i = 0; i < num_axi_agent ; i++)
+			begin
+				axi_fixed_wr_seq.start(envh.axi_agt_top.axi_agt[i].seqr);
+				cfg.ahb_length.push_back(envh.axi_agt_top.axi_agt[i].drv.req.awlen + 1);
+			end
+			uvm_config_db #(env_config)::set(this,"*","env_config",cfg);
+			#300;
+			for(int i = 0; i < num_ahb_agent ; i++)
+				ahb_error_seq.start(envh.ahb_agt_top.ahb_agt[i].seqr);
+
+			#600;
+
+			for(int i = 0; i < num_ahb_agent ; i++)
+				ahb_rst_seq.start(envh.ahb_rst_agt_top.ahb_rst_agt[i].seqr);
+
+			for(int i = 0; i < num_axi_agent ; i++)
+				axi_rst_seq.start(envh.axi_rst_agt_top.axi_rst_agt[i].seqr);
+
+			#20;
+
+			for(int i = 0; i < num_axi_agent ; i++)
+			begin
+				axi_fixed_rd_seq.start(envh.axi_agt_top.axi_agt[i].seqr);
+				cfg.ahb_length.push_back(2 * (envh.axi_agt_top.axi_agt[i].drv.req.arlen + 1));
+			end
+			uvm_config_db #(env_config)::set(this,"*","env_config",cfg);
+
+			#300;
+			for(int i = 0; i < num_ahb_agent ; i++)
+				ahb_error_seq.start(envh.ahb_agt_top.ahb_agt[i].seqr);
+
+		#300;
+
+		phase.drop_objection(this);
+	endtask : run_phase
+endclass : FIXED_error_test
+
+class WRAP_ok_test extends base_test;
+	`uvm_component_utils(WRAP_ok_test)
+
+	function new(string name = "WRAP_ok_test",uvm_component parent);
+		super.new(name,parent);
+	endfunction : new
+
+	function void build_phase(uvm_phase phase);
+		super.build_phase(phase);
+	endfunction : build_phase
+
+	task run_phase(uvm_phase phase);
+		ahb_rst_seq = ahb_reset_sequence::type_id::create("ahb_rst_seq");
+		axi_rst_seq = axi_reset_sequence::type_id::create("axi_rst_seq");
+		ahb_ok_seq = ahb_ok_sequence::type_id::create("ahb_ok_seq");
+		axi_wrap_wr_seq = axi_WRAP_write_sequence::type_id::create("axi_wrap_wr_seq");
+		axi_wrap_rd_seq = axi_WRAP_read_sequence::type_id::create("axi_wrap_rd_seq");
+		phase.raise_objection(this);
+			for(int i = 0; i < num_ahb_agent ; i++)
+				ahb_rst_seq.start(envh.ahb_rst_agt_top.ahb_rst_agt[i].seqr);
+
+			for(int i = 0; i < num_axi_agent ; i++)
+				axi_rst_seq.start(envh.axi_rst_agt_top.axi_rst_agt[i].seqr);
+
+			#20;
+
+			for(int i = 0; i < num_axi_agent ; i++)
+			begin
+				axi_wrap_wr_seq.start(envh.axi_agt_top.axi_agt[i].seqr);
+				cfg.ahb_length.push_back(envh.axi_agt_top.axi_agt[i].drv.req.awlen);
+			end
+			uvm_config_db #(env_config)::set(this,"*","env_config",cfg);
+			#300;
+			for(int i = 0; i < num_ahb_agent ; i++)
+				ahb_ok_seq.start(envh.ahb_agt_top.ahb_agt[i].seqr);
+
+			#300;
+
+			for(int i = 0; i < num_ahb_agent ; i++)
+				ahb_rst_seq.start(envh.ahb_rst_agt_top.ahb_rst_agt[i].seqr);
+
+			for(int i = 0; i < num_axi_agent ; i++)
+				axi_rst_seq.start(envh.axi_rst_agt_top.axi_rst_agt[i].seqr);
+
+			#20;
+
+			for(int i = 0; i < num_axi_agent ; i++)
+			begin
+				axi_wrap_rd_seq.start(envh.axi_agt_top.axi_agt[i].seqr);
+				cfg.ahb_length.push_back(envh.axi_agt_top.axi_agt[i].drv.req.arlen);
+			end
+			uvm_config_db #(env_config)::set(this,"*","env_config",cfg);
+
+			#300;
+			for(int i = 0; i < num_ahb_agent ; i++)
+				ahb_ok_seq.start(envh.ahb_agt_top.ahb_agt[i].seqr);
+
+		#300;
+
+		phase.drop_objection(this);
+	endtask : run_phase
+endclass : WRAP_ok_test
+
+
+class WRAP_ok_wait_test extends base_test;
+	`uvm_component_utils(WRAP_ok_wait_test)
+
+	function new(string name = "WRAP_ok_wait_test",uvm_component parent);
+		super.new(name,parent);
+	endfunction : new
+
+	function void build_phase(uvm_phase phase);
+		super.build_phase(phase);
+	endfunction : build_phase
+
+	task run_phase(uvm_phase phase);
+		ahb_rst_seq = ahb_reset_sequence::type_id::create("ahb_rst_seq");
+		axi_rst_seq = axi_reset_sequence::type_id::create("axi_rst_seq");
+		ahb_ok_wait_seq = ahb_ok_wait_sequence::type_id::create("ahb_ok_wait_seq");
+		axi_wrap_wr_seq = axi_WRAP_write_sequence::type_id::create("axi_wrap_wr_seq");
+		axi_wrap_rd_seq = axi_WRAP_read_sequence::type_id::create("axi_wrap_rd_seq");
+		phase.raise_objection(this);
+			for(int i = 0; i < num_ahb_agent ; i++)
+				ahb_rst_seq.start(envh.ahb_rst_agt_top.ahb_rst_agt[i].seqr);
+
+			for(int i = 0; i < num_axi_agent ; i++)
+				axi_rst_seq.start(envh.axi_rst_agt_top.axi_rst_agt[i].seqr);
+
+			#20;
+
+			for(int i = 0; i < num_axi_agent ; i++)
+			begin
+				axi_wrap_wr_seq.start(envh.axi_agt_top.axi_agt[i].seqr);
+				cfg.ahb_length.push_back(envh.axi_agt_top.axi_agt[i].drv.req.awlen);
+			end
+			uvm_config_db #(env_config)::set(this,"*","env_config",cfg);
+			#300;
+			for(int i = 0; i < num_ahb_agent ; i++)
+				ahb_ok_wait_seq.start(envh.ahb_agt_top.ahb_agt[i].seqr);
+
+			#300;
+
+			for(int i = 0; i < num_ahb_agent ; i++)
+				ahb_rst_seq.start(envh.ahb_rst_agt_top.ahb_rst_agt[i].seqr);
+
+			for(int i = 0; i < num_axi_agent ; i++)
+				axi_rst_seq.start(envh.axi_rst_agt_top.axi_rst_agt[i].seqr);
+
+			#20;
+
+			for(int i = 0; i < num_axi_agent ; i++)
+			begin
+				axi_wrap_rd_seq.start(envh.axi_agt_top.axi_agt[i].seqr);
+				cfg.ahb_length.push_back(2 * (envh.axi_agt_top.axi_agt[i].drv.req.arlen + 1));
+			end
+			uvm_config_db #(env_config)::set(this,"*","env_config",cfg);
+
+			#300;
+			for(int i = 0; i < num_ahb_agent ; i++)
+				ahb_ok_wait_seq.start(envh.ahb_agt_top.ahb_agt[i].seqr);
+
+		#300;
+
+		phase.drop_objection(this);
+	endtask : run_phase
+endclass : WRAP_ok_wait_test
+
+class WRAP_error_test extends base_test;
+	`uvm_component_utils(WRAP_error_test)
+
+	function new(string name = "WRAP_error_test",uvm_component parent);
+		super.new(name,parent);
+	endfunction : new
+
+	function void build_phase(uvm_phase phase);
+		super.build_phase(phase);
+	endfunction : build_phase
+
+	task run_phase(uvm_phase phase);
+		ahb_rst_seq = ahb_reset_sequence::type_id::create("ahb_rst_seq");
+		axi_rst_seq = axi_reset_sequence::type_id::create("axi_rst_seq");
+		ahb_error_seq = ahb_error_sequence::type_id::create("ahb_error_seq");
+		axi_wrap_wr_seq = axi_WRAP_write_sequence::type_id::create("axi_wrap_wr_seq");
+		axi_wrap_rd_seq = axi_WRAP_read_sequence::type_id::create("axi_wrap_rd_seq");
+		phase.raise_objection(this);
+			for(int i = 0; i < num_ahb_agent ; i++)
+				ahb_rst_seq.start(envh.ahb_rst_agt_top.ahb_rst_agt[i].seqr);
+
+			for(int i = 0; i < num_axi_agent ; i++)
+				axi_rst_seq.start(envh.axi_rst_agt_top.axi_rst_agt[i].seqr);
+
+			#20;
+
+			for(int i = 0; i < num_axi_agent ; i++)
+			begin
+				axi_wrap_wr_seq.start(envh.axi_agt_top.axi_agt[i].seqr);
+				cfg.ahb_length.push_back(envh.axi_agt_top.axi_agt[i].drv.req.awlen);
+			end
+			uvm_config_db #(env_config)::set(this,"*","env_config",cfg);
+			#300;
+			for(int i = 0; i < num_ahb_agent ; i++)
+				ahb_error_seq.start(envh.ahb_agt_top.ahb_agt[i].seqr);
+
+			#300;
+
+			for(int i = 0; i < num_ahb_agent ; i++)
+				ahb_rst_seq.start(envh.ahb_rst_agt_top.ahb_rst_agt[i].seqr);
+
+			for(int i = 0; i < num_axi_agent ; i++)
+				axi_rst_seq.start(envh.axi_rst_agt_top.axi_rst_agt[i].seqr);
+
+			#20;
+
+			for(int i = 0; i < num_axi_agent ; i++)
+			begin
+				axi_wrap_rd_seq.start(envh.axi_agt_top.axi_agt[i].seqr);
+				cfg.ahb_length.push_back(2 * (envh.axi_agt_top.axi_agt[i].drv.req.arlen + 1));
+			end
+			uvm_config_db #(env_config)::set(this,"*","env_config",cfg);
+
+			#300;
+			for(int i = 0; i < num_ahb_agent ; i++)
+				ahb_error_seq.start(envh.ahb_agt_top.ahb_agt[i].seqr);
+
+		#300;
+
+		phase.drop_objection(this);
+	endtask : run_phase
+endclass : WRAP_error_test

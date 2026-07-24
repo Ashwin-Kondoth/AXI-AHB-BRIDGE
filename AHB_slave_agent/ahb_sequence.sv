@@ -30,7 +30,7 @@ class ahb_ok_sequence extends uvm_sequence #(ahb_xtn);
         req = ahb_xtn::type_id::create("req");
         if(!uvm_config_db #(env_config)::get(null,get_full_name,"env_config",cfg))
             `uvm_fatal("AHB_SEQ","get failed for env_config")
-        repeat(2 * cfg.ahb_length.pop_front())
+        repeat(6 * cfg.ahb_length.pop_front())
             begin
                start_item(req);
                assert(req.randomize() with {delay_cycles == 2; resp == 0;});
@@ -54,7 +54,7 @@ class ahb_ok_wait_sequence extends uvm_sequence #(ahb_xtn);
         req = ahb_xtn::type_id::create("req");
         if(!uvm_config_db #(env_config)::get(null,get_full_name,"env_config",cfg))
             `uvm_fatal("AHB_SEQ","get failed for env_config")
-        repeat(2 * cfg.ahb_length.pop_front())
+        repeat(6 * cfg.ahb_length.pop_front())
             begin
                start_item(req);
                assert(req.randomize() with {delay_cycles == 2; resp == 1;});
@@ -66,6 +66,8 @@ endclass : ahb_ok_wait_sequence
 
 class ahb_error_sequence extends uvm_sequence #(ahb_xtn);
 
+    env_config cfg;
+
     `uvm_object_utils(ahb_error_sequence)
 
     function new(string name = "ahb_error_sequence");
@@ -74,8 +76,9 @@ class ahb_error_sequence extends uvm_sequence #(ahb_xtn);
 
     task body;
         req = ahb_xtn::type_id::create("req");
-
-        repeat(4)
+        if(!uvm_config_db #(env_config)::get(null,get_full_name,"env_config",cfg))
+            `uvm_fatal("AHB_SEQ","get failed for env_config")
+        repeat(6 * cfg.ahb_length.pop_front())
             begin
                start_item(req);
                assert(req.randomize() with {delay_cycles == 2; resp == 2;});

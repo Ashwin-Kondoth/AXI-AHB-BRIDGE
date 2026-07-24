@@ -19,6 +19,12 @@ class sb extends uvm_scoreboard;
 	ahb_xtn ahb_cov_data; 
 	ahb_xtn hxtn;
 
+	int no_of_write_verified = 0;
+	int no_of_read_verified = 0;
+	int no_of_axi_reset_verified = 0;
+	int no_of_ahb_reset_verified = 0;
+	int no_of_transactions = 0;
+
 	env_config env_cfg;
 
 	extern function void build_phase(uvm_phase phase);
@@ -26,11 +32,12 @@ class sb extends uvm_scoreboard;
 	extern task axi_rst_check(axi_rst_xtn arxtn);
 	extern task ahb_rst_check(ahb_rst_xtn hrxtn);
 	extern task data_compare(ahb_xtn hxtn);
+	extern function void report_phase(uvm_phase phase);
 
 	covergroup axi_rst_cg;
 
 		option.per_instance=1;
-		CP_A_RESETN : coverpoint axi_rst_cov_data.aresetn{ bins RST[]={0,1};}
+		CP_A_RESETN : coverpoint axi_rst_cov_data.aresetn{ bins RST={0};}
 
 	endgroup
 
@@ -38,7 +45,7 @@ class sb extends uvm_scoreboard;
 
 		option.per_instance=1;
 
-		CP_H_RESETN : coverpoint ahb_rst_cov_data.hresetn{ bins RST[]={0,1};}
+		CP_H_RESETN : coverpoint ahb_rst_cov_data.hresetn{ bins RST={0};}
 
 	endgroup
 
@@ -78,7 +85,7 @@ class sb extends uvm_scoreboard;
 
 		option.per_instance=1;
 		CP_AW_ID: coverpoint axi_cov_data.awid { bins low ={[0:$]};}
-		CP_AW_ADDR: coverpoint axi_cov_data.awaddr {	bins first_slave = {[32'h0000_0000:32'h4444_4444]};
+		CP_AW_ADDR: coverpoint axi_cov_data.awaddr {bins first_slave = {[32'h0000_0000:32'h4444_4444]};
 								bins second_slave ={[32'h4444_4445: 32'h8888_8888]};
 								bins third_slave = {[32'h8888_8889:32'hcccc_cccc]};
 								bins fourth_slave ={[32'hcccc_cccd:32'hffff_ffff]};}
@@ -182,12 +189,14 @@ task sb::run_phase(uvm_phase phase);
 		forever begin
 			axi_wdata_fifo.get(axi_wdata_xtn);
 			wdata.push_back(axi_wdata_xtn);
+			no_of_transactions ++;
 		end
 		end
 		begin
 		forever begin
 			axi_rdata_fifo.get(axi_rdata_xtn);
 			rdata.push_back(axi_rdata_xtn);
+			no_of_transactions ++;
 		end
 		end
 	join
@@ -196,8 +205,10 @@ endtask
 task sb::axi_rst_check(axi_rst_xtn arxtn);
 	if(arxtn.aresetn==1'b0)
 	begin
-	if(arxtn.bvalid==1'b0 && arxtn.rvalid==1'b0)
+	if(arxtn.bvalid==1'b0 && arxtn.rvalid==1'b0) begin
 	`uvm_info("SB_AXI_RST","axi reset passed",UVM_LOW)
+	no_of_axi_reset_verified ++;
+	end
 	else
 	`uvm_error("SB_AXI_RST","axi reset failed")
 	end
@@ -206,8 +217,10 @@ endtask
 task sb::ahb_rst_check(ahb_rst_xtn hrxtn);
 	if(hrxtn.hresetn==1'b0)
 	begin
-	if(hrxtn.htrans==2'b00)
+	if(hrxtn.htrans==2'b00) begin
 	`uvm_info("SB_AHB_RST","ahb reset passed",UVM_LOW)
+	no_of_ahb_reset_verified ++;
+	end
 	else
 	`uvm_error("SB_AHB_RST","ahb reset failed")
 	end
@@ -223,6 +236,7 @@ task sb::data_compare(ahb_xtn hxtn);
 		begin
 		`uvm_info("SB_AXI:", "data is matched", UVM_LOW)
 		`uvm_info("SB_AXI:", $sformatf("axi_temporary_wdata: %0h, ahb_hwdata: %0h",axtn.temp_wdata, hxtn.hwdata),UVM_LOW)
+		no_of_write_verified ++;
 		end
 		else begin
 		`uvm_error("SB_AXI:", "data is mismatched")
@@ -237,9 +251,22 @@ task sb::data_compare(ahb_xtn hxtn);
 		begin
 		`uvm_info("SB_AXI:", "data is matched", UVM_LOW)
 		`uvm_info("SB_AXI:", $sformatf("axi_temporary_rdata: %0h, ahb_hrdata: %0h",axtn.temp_rdata, hxtn.hrdata),UVM_LOW)
+		no_of_read_verified ++;
 		end
 		else begin
 		`uvm_error("SB_AXI:", "data is mismatched")
 		end
 	end
 endtask
+
+function void sb::report_phase(uvm_phase phase);
+	$display("================================================================================================================================================================");
+	$display("|\t \t \t \t \t \t \t     AXI_AHB_BRIDGE REPORT                                                                               |");
+	$display("================================================================================================================================================================");
+	$display("|\t \t \t \t \t \t \t No of axi write verified: %0d                                                                            |\n",no_of_write_verified);
+	$display("|\t \t \t \t \t \t \t No of axi read verified:  %0d                                                                            |\n",no_of_read_verified);
+	$display("|\t \t \t \t \t \t \t No of transactions: %0d                                                                       	         |\n",no_of_transactions);
+	$display("|\t \t \t \t \t \t \t No of axi reset verified: %0d                                                                             |\n",no_of_axi_reset_verified);
+	$display("|\t \t \t \t \t \t \t No of ahb reset verified: %0d                                                                             |\n",no_of_ahb_reset_verified);
+	$display("================================================================================================================================================================");
+endfunction

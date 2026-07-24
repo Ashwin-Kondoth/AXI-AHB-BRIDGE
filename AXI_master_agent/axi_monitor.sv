@@ -187,7 +187,7 @@ class axi_monitor extends uvm_monitor;
 		xtn2.bresp = vif.axi_mon_cb.bresp;
 		xtn2.bvalid = vif.axi_mon_cb.bvalid;
 		axi_monitor_port.write(xtn2);
-		`uvm_info("AXI_MON_WB",$sformatf("axi_trans: \n %p",xtn1.sprint()),UVM_LOW)
+		//`uvm_info("AXI_MON_WB",$sformatf("axi_trans: \n %p",xtn1.sprint()),UVM_LOW)
 		@(vif.axi_mon_cb);
 	endtask : wr_resp_channel
 
@@ -210,8 +210,8 @@ class axi_monitor extends uvm_monitor;
 		bit a;
 		xtn4 = axi_xtn::type_id::create("xtn4");
 		xtn4 = xtn3;
-		xtn4.rdata = new[xtn4.arlen + 2];
-		`uvm_info("AXI_MON",$sformatf("arlen_mon = %0d",xtn4.arlen),UVM_LOW)
+		xtn4.rdata = new[xtn4.arlen + 1];
+		//`uvm_info("AXI_MON",$sformatf("arlen_mon = %0d",xtn4.arlen),UVM_LOW)
 		foreach(xtn4.rdata[i])
 			begin
 				wait((vif.axi_mon_cb.rvalid) && (vif.axi_mon_cb.rready))
@@ -222,12 +222,12 @@ class axi_monitor extends uvm_monitor;
 				xtn4.rdata[i] = vif.axi_mon_cb.rdata;
 				xtn4.rresp[i] = vif.axi_mon_cb.rresp;
 				axi_read_data.temp_rdata = vif.axi_mon_cb.rdata;
-				if(i == (xtn.rdata.size - 1))
+				if(i == (xtn4.rdata.size - 1))
 					begin
 						xtn4.rlast = vif.axi_mon_cb.rlast;
 						a = vif.axi_mon_cb.rlast;
 					end
-				`uvm_info("AXI_MON",$sformatf("rdata[%0d] = %0h",i,xtn4.rdata[i]),UVM_LOW)
+				//`uvm_info("AXI_MON",$sformatf("rdata[%0d] = %0h",i,xtn4.rdata[i]),UVM_LOW)
 				@(vif.axi_mon_cb);
 				axi_read_data_monitor_port.write(axi_read_data);
 			end

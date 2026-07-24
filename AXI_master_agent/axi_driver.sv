@@ -83,7 +83,6 @@ class axi_driver extends uvm_driver #(axi_xtn);
 	endtask : run_phase
 
 	task send_to_dut(axi_xtn xtn);
-		xtn.print();
 		q1.push_back(xtn);
 		q2.push_back(xtn);
 		q3.push_back(xtn);
@@ -93,48 +92,48 @@ class axi_driver extends uvm_driver #(axi_xtn);
 		fork
 			begin
 				aw.get(1);
-				`uvm_info("AXI_DRV","write address started",UVM_LOW)
+				//`uvm_info("AXI_DRV","write address started",UVM_LOW)
 				write_addr_channel(q1.pop_front());
 				aw.put(1);
-				`uvm_info("AXI_DRV","write address completed",UVM_LOW)
+				//`uvm_info("AXI_DRV","write address completed",UVM_LOW)
 				aw_w.put(1);
 			end
 			
 			begin
 				aw_w.get(1);
 				w.get(1);
-				`uvm_info("AXI_DRV","write data started",UVM_LOW)
+				//`uvm_info("AXI_DRV","write data started",UVM_LOW)
 				write_data_channel(q2.pop_front());
 				w.put(1);
-				`uvm_info("AXI_DRV","write data completed",UVM_LOW)
+				//`uvm_info("AXI_DRV","write data completed",UVM_LOW)
 				w_b.put(1);
 			end
 		
 			begin
 				w_b.get(1);
 				b.get(1);
-				`uvm_info("AXI_DRV","write response started",UVM_LOW)
+				//`uvm_info("AXI_DRV","write response started",UVM_LOW)
 				write_resp_channel(q3.pop_front());
 				b.put(1);
-				`uvm_info("AXI_DRV","write response completed",UVM_LOW)
+				//`uvm_info("AXI_DRV","write response completed",UVM_LOW)
 			end
 			
 			begin
 				ar.get(1);
-				`uvm_info("AXI_DRV","read address started",UVM_LOW)
+				//`uvm_info("AXI_DRV","read address started",UVM_LOW)
 				read_addr_channel(q4.pop_front());
 				ar.put(1);
-				`uvm_info("AXI_DRV","read address completed",UVM_LOW)
+				//`uvm_info("AXI_DRV","read address completed",UVM_LOW)
 				ar_r.put(1);
 			end
 			
 			begin
 				ar_r.get(1);
 				r.get(1);
-				`uvm_info("AXI_DRV","read data started",UVM_LOW)
+				//`uvm_info("AXI_DRV","read data started",UVM_LOW)
 				read_data_channel(q5.pop_front());
 				r.put(1);
-				`uvm_info("AXI_DRV","read data completed",UVM_LOW)
+				//`uvm_info("AXI_DRV","read data completed",UVM_LOW)
 			end
 		join_any
 	endtask : send_to_dut
@@ -213,11 +212,11 @@ class axi_driver extends uvm_driver #(axi_xtn);
 	endtask : read_addr_channel
 
 	task read_data_channel (axi_xtn xtn);
-		`uvm_info("AXI_DRV",$sformatf("arlen_drv = %0d",xtn.arlen),UVM_LOW)
+		//`uvm_info("AXI_DRV",$sformatf("arlen_drv = %0d",xtn.arlen),UVM_LOW)
 		repeat(xtn.arlen + 1)
 			begin
 				@(vif.axi_drv_cb)
-				`uvm_info("AXI_DRV","read_data_channel",UVM_LOW)
+				//`uvm_info("AXI_DRV","read_data_channel",UVM_LOW)
 				vif.axi_drv_cb.rready <= 1'b1;
 				wait(vif.axi_drv_cb.rvalid)
 				@(vif.axi_drv_cb);

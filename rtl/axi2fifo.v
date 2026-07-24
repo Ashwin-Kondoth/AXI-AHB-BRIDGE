@@ -46,13 +46,15 @@ module axi2fifo(
 	input					size_fifo_full
 );//rlast state set at highest bit of id fifo
 
-	parameter
-						IDLE 		= 6'b000001,
-						WRITE		= 6'b000010,
-						WRITE_WRAP	= 6'b000100,
-						READ		= 6'b001000,
-						READ_INCR	= 6'b010000,
-						READ_WRAP	= 6'b100000;
+	parameter [5:0]
+						IDLE 		= 6'd0,
+						WRITE		= 6'd1,
+						WRITE_WRAP	= 6'd2,
+						READ		= 6'd3,
+						READ_INCR	= 6'd4,
+						READ_WRAP	= 6'd5,
+						WRITE_FIXED	= 6'd6,
+						READ_FIXED	= 6'd7;
 
 	//aw channel
 	reg		[7:0]		awid_reg;
@@ -101,7 +103,7 @@ module axi2fifo(
 			write_finished <= 1'b1;
 		else if(wlast == 1'b1 && fifo_access == 1'b0)
 			write_finished <= 1'b1;
-		else if((wvalid == 1'b1)||(nstate==WRITE_WRAP))
+		else if((wvalid == 1'b1)||(nstate==WRITE_WRAP)||(nstate==WRITE_FIXED))
 			write_finished <= 1'b0;
 		else
 			write_finished <= write_finished;
@@ -151,7 +153,7 @@ module axi2fifo(
 	always@(posedge aclk or negedge aresetn)
 		if(!aresetn)
 			read_finished <= 1'b1;
-		else if((nstate == READ_INCR || nstate == READ_WRAP) && read_finished == 1'b1 && arlen != 8'b0)
+		else if((nstate == READ_INCR || nstate == READ_WRAP || nstate == READ_FIXED) && read_finished == 1'b1 && arlen != 8'b0)
 			read_finished <= 1'b0;
 		else if(arlen_reg == arlen_temp && fifo_access == 1'b0)
 			read_finished <= 1'b1;
@@ -211,16 +213,20 @@ module axi2fifo(
 	always@(*)
 		case(cstate)
 			IDLE:begin
-				if(awvalid == 1'b1 && (awburst == 2'b0 || awburst == 2'b1))
+				if(awvalid == 1'b1 && (awburst == 2'b01 || awburst == 2'b1))
 					nstate = WRITE;
 				else if(awvalid == 1'b1 && awburst == 2'b10)
 					nstate = WRITE_WRAP;
-				else if(arvalid == 1'b1 && arburst == 2'b0)
+				else if(awvalid == 1'b1 && awburst == 2'b00)
+					nstate = WRITE_FIXED;
+				else if(arvalid == 1'b1 && arburst == 2'b11)
 					nstate = READ;
-				else if(arvalid == 1'b1 && arburst == 2'b1)
+				else if(arvalid == 1'b1 && arburst == 2'b01)
 					nstate = READ_INCR;
 				else if(arvalid == 1'b1 && arburst == 2'b10)
 					nstate = READ_WRAP;
+				else if(arvalid == 1'b1 && arburst == 2'b00)
+					nstate = READ_FIXED;
 				else
 					nstate = IDLE;
 			end
@@ -229,12 +235,16 @@ module axi2fifo(
 					nstate = IDLE;
 				else if(awvalid == 1'b1 && awburst == 2'b10 && write_finished == 1'b1 && single_write_flag == 1'b1)
 					nstate = WRITE_WRAP;
+				else if(awvalid == 1'b1 && awburst == 2'b11 && write_finished == 1'b1 && single_write_flag == 1'b1)
+					nstate = WRITE_FIXED;
 				else if(arvalid == 1'b1 && arburst == 2'b0 && write_finished == 1'b1 && single_write_flag == 1'b1)
 					nstate = READ;
 				else if(arvalid == 1'b1 && arburst == 2'b1 && write_finished == 1'b1 && single_write_flag == 1'b1)
 					nstate = READ_INCR;
 				else if(arvalid == 1'b1 && arburst == 2'b10 && write_finished == 1'b1 && single_write_flag == 1'b1)
 					nstate = READ_WRAP;
+				else if(arvalid == 1'b1 && arburst == 2'b11 && write_finished == 1'b1 && single_write_flag == 1'b1)
+					nstate = READ_FIXED;
 				else
 					nstate = WRITE;	
 			end
@@ -243,14 +253,36 @@ module axi2fifo(
 					nstate = IDLE;
 				else if(awvalid == 1'b1 && (awburst == 2'b0 || awburst == 2'b1) && write_finished == 1'b1)
 					nstate = WRITE;
+				else if(awvalid == 1'b1 && awburst == 2'b11 && write_finished == 1'b1)
+					nstate = WRITE_FIXED;
 				else if(arvalid == 1'b1 && arburst == 2'b0 && write_finished == 1'b1)
 					nstate = READ;
 				else if(arvalid == 1'b1 && arburst == 2'b1 && write_finished == 1'b1)
 					nstate = READ_INCR;
 				else if(arvalid == 1'b1 && arburst == 2'b10 && write_finished == 1'b1)
 					nstate = READ_WRAP;
+				else if(arvalid == 1'b1 && arburst == 2'b11 && write_finished == 1'b1)
+					nstate = READ_FIXED;
 				else
 					nstate = WRITE_WRAP;	
+			end
+			WRITE_FIXED:begin
+				if(arvalid == 1'b0 && awvalid == 1'b0 && write_finished == 1'b1)
+					nstate = IDLE;
+				else if(awvalid == 1'b1 && (awburst == 2'b0 || awburst == 2'b1) && write_finished == 1'b1)
+					nstate = WRITE;
+				else if(awvalid == 1'b1 && awburst == 2'b10 && write_finished == 1'b1)
+					nstate = WRITE_WRAP;
+				else if(arvalid == 1'b1 && arburst == 2'b0 && write_finished == 1'b1)
+					nstate = READ;
+				else if(arvalid == 1'b1 && arburst == 2'b1 && write_finished == 1'b1)
+					nstate = READ_INCR;
+				else if(arvalid == 1'b1 && arburst == 2'b10 && write_finished == 1'b1)
+					nstate = READ_WRAP;
+				else if(arvalid == 1'b1 && arburst == 2'b11 && write_finished == 1'b1)
+					nstate = READ_FIXED;
+				else
+					nstate = WRITE_FIXED;
 			end
 			READ:begin
 				if(arvalid == 1'b0 && awvalid == 1'b0 && read_finished == 1'b1)
@@ -259,10 +291,14 @@ module axi2fifo(
 					nstate = WRITE;
 				else if(awvalid == 1'b1 && awburst == 2'b10 && read_finished == 1'b1)
 					nstate = WRITE_WRAP;
+				else if(awvalid == 1'b1 && awburst == 2'b11 && read_finished == 1'b1)
+					nstate = WRITE_FIXED;
 				else if(arvalid == 1'b1 && arburst == 2'b1 && read_finished == 1'b1)
 					nstate = READ_INCR;
 				else if(arvalid == 1'b1 && arburst == 2'b10 && read_finished == 1'b1)
 					nstate = READ_WRAP;
+				else if(arvalid == 1'b1 && arburst == 2'b11 && read_finished == 1'b1)
+					nstate = READ_FIXED;
 				else
 					nstate = READ;	
 			end
@@ -273,10 +309,14 @@ module axi2fifo(
 					nstate = WRITE;
 				else if(awvalid == 1'b1 && awburst == 2'b10 && read_finished == 1'b1)
 					nstate = WRITE_WRAP;
+				else if(awvalid == 1'b1 && awburst == 2'b11 && read_finished == 1'b1)
+					nstate = WRITE_FIXED;
 				else if(arvalid == 1'b1 && arburst == 2'b0 && read_finished == 1'b1)
 					nstate = READ;
 				else if(arvalid == 1'b1 && arburst == 2'b10 && read_finished == 1'b1)
 					nstate = READ_WRAP;
+				else if(arvalid == 1'b1 && arburst == 2'b11 && read_finished == 1'b1)
+					nstate = READ_FIXED;
 				else
 					nstate = READ_INCR;	
 			end
@@ -287,12 +327,34 @@ module axi2fifo(
 					nstate = WRITE;
 				else if(awvalid == 1'b1 && awburst == 2'b10 && read_finished == 1'b1)
 					nstate = WRITE_WRAP;
+				else if(awvalid == 1'b1 && awburst == 2'b11 && read_finished == 1'b1)
+					nstate = WRITE_FIXED;
 				else if(arvalid == 1'b1 && arburst == 2'b0 && read_finished == 1'b1)
 					nstate = READ;
 				else if(arvalid == 1'b1 && arburst == 2'b1 && read_finished == 1'b1)
 					nstate = READ_INCR;
+				else if(arvalid == 1'b1 && arburst == 2'b11 && read_finished == 1'b1)
+					nstate = READ_FIXED;
 				else
 					nstate = READ_WRAP;	
+			end
+			READ_FIXED:begin
+				if(arvalid == 1'b0 && awvalid == 1'b0 && read_finished == 1'b1)
+					nstate = IDLE;
+				else if(awvalid == 1'b1 && (awburst == 2'b0 || awburst == 2'b1) && read_finished == 1'b1)
+					nstate = WRITE;
+				else if(awvalid == 1'b1 && awburst == 2'b10 && read_finished == 1'b1)
+					nstate = WRITE_WRAP;
+				else if(awvalid == 1'b1 && awburst == 2'b11 && read_finished == 1'b1)
+					nstate = WRITE_FIXED;
+				else if(arvalid == 1'b1 && arburst == 2'b0 && read_finished == 1'b1)
+					nstate = READ;
+				else if(arvalid == 1'b1 && arburst == 2'b1 && read_finished == 1'b1)
+					nstate = READ_INCR;
+				else if(arvalid == 1'b1 && arburst == 2'b10 && read_finished == 1'b1)
+					nstate = READ_WRAP;
+				else
+					nstate = READ_FIXED;
 			end
 		endcase
 
@@ -440,6 +502,52 @@ module axi2fifo(
 						size_w_en <= 1'b0;
 					end
 				end
+				WRITE_FIXED:begin
+					single_write_flag <= 1'b0;
+					lower_bound_shift <= 1'b0;
+					if(wvalid == 1'b1 && fifo_access == 1'b0 && write_finished == 1'b1)begin
+						addr_w_en <= 1'b1;
+						data_w_en <= 1'b1;
+						state_w_en <= 1'b1;
+						id_send_w_en <= 1'b1;
+						size_w_en <= 1'b1;
+						axi_addr <= awaddr;
+						axi_data <= wdata&data_mask;
+						axi_write <= 1'b1;
+						axi_size <= awsize;
+						if(wlast == 1'b1)
+							axi_id <= {1'b1,awid};
+						else
+							axi_id <= {1'b0,awid};
+					end
+					else if(wvalid == 1'b1 && fifo_access == 1'b0 && write_finished == 1'b0)begin
+						addr_w_en <= 1'b1;
+						data_w_en <= 1'b1;
+						state_w_en <= 1'b1;
+						id_send_w_en <= 1'b1;
+						size_w_en <= 1'b1;
+						axi_addr <= awaddr_reg;
+						axi_data <= wdata&data_mask;
+						axi_write <= 1'b1;
+						axi_size <= awsize_reg;
+						if(wlast == 1'b1)
+							axi_id <= {1'b1,awid_reg};
+						else
+							axi_id <= {1'b0,awid_reg};
+					end
+					else begin
+						axi_addr <= 31'b0;
+						axi_data <= 64'b0;
+						axi_write <= 1'b1;
+						axi_id <= 9'b0;
+						axi_size <= 3'b0;
+						addr_w_en <= 1'b0;
+						data_w_en <= 1'b0;
+						state_w_en <= 1'b0;
+						id_send_w_en <= 1'b0;
+						size_w_en <= 1'b0;
+					end
+				end
 				READ:begin
 					single_write_flag <= 1'b0;
 					lower_bound_shift <= 1'b0;
@@ -556,6 +664,49 @@ module axi2fifo(
 						id_send_w_en <= 1'b1;
 						size_w_en <= 1'b1;
 						axi_addr <= raddr_lower_bound;
+						axi_data <= 64'b0;
+						axi_write <= 1'b0;
+						axi_size <= arsize_reg;
+						if(arlen_temp == arlen_reg)
+							axi_id <= {1'b1,arid_reg};
+						else
+							axi_id <= {1'b0,arid_reg};
+					end
+					else begin
+						axi_addr <= 31'b0;
+						axi_data <= 64'b0;
+						axi_write <= 1'b0;
+						axi_id <= 9'b0;
+						axi_size <= 3'b0;
+						addr_w_en <= 1'b0;
+						data_w_en <= 1'b0;
+						state_w_en <= 1'b0;
+						id_send_w_en <= 1'b0;
+						size_w_en <= 1'b0;
+					end
+				end
+				READ_FIXED:begin
+					single_write_flag <= 1'b0;
+					lower_bound_shift <= 1'b0;
+					if(arvalid == 1'b1 && fifo_access == 1'b0 && read_finished == 1'b1)begin
+						addr_w_en <= 1'b1;
+						data_w_en <= 1'b1;
+						state_w_en <= 1'b1;
+						id_send_w_en <= 1'b1;
+						size_w_en <= 1'b1;
+						axi_addr <= araddr;
+						axi_data <= 64'b0;
+						axi_write <= 1'b0;
+						axi_size <= arsize;
+						axi_id <= {1'b0,arid};
+					end
+					else if(fifo_access == 1'b0 && read_finished == 1'b0)begin
+						addr_w_en <= 1'b1;
+						data_w_en <= 1'b1;
+						state_w_en <= 1'b1;
+						id_send_w_en <= 1'b1;
+						size_w_en <= 1'b1;
+						axi_addr <= araddr_reg;
 						axi_data <= 64'b0;
 						axi_write <= 1'b0;
 						axi_size <= arsize_reg;

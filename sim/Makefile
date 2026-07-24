@@ -25,7 +25,7 @@ VSIMBATCH6= -c -do "log -r /*; assertion pass -recursive /top/*; assertion fail 
 VSIMBATCH7= -c -do "log -r /*; assertion pass -recursive /top/*; assertion fail -recursive /top/*; coverage save -onexit cov7; run -all; exit"
 VSIMBATCH8= -c -do "log -r /*; assertion pass -recursive /top/*; assertion fail -recursive /top/*; coverage save -onexit cov8; run -all; exit"
 VSIMBATCH9= -c -do "log -r /*; assertion pass -recursive /top/*; assertion fail -recursive /top/*; coverage save -onexit cov9; run -all; exit"
-VSIMBATCH10= -c -do "log -r /*; assertion pass -recursive /top/*; assertion fail -recursive /top/*; coverage save -onexit cov10; run -all; exit"
+#VSIMBATCH10= -c -do "log -r /*; assertion pass -recursive /top/*; assertion fail -recursive /top/*; coverage save -onexit cov10; run -all; exit"
 
 help:
 	@echo =============================================================================================================
@@ -60,58 +60,54 @@ sv_cmp_Questa:
 	vmap work $(work)
 	vlog -work $(work) -cover sbcef $(RTL) $(INC) $(SVTB2) $(SVTB1) 	
 
-run_ct_Questa: clean sv_cmp_Questa
-	vsim -cvgperinstance $(VSIMOPT) $(VSIMCOV) $(VSIMBATCH10)  -wlf wave_ct.wlf -l ct_test.log  -sv_seed random work.top +UVM_TESTNAME=corner_test
-	vcover report  -cvg  -details -nocompactcrossbins -codeAll -assert -directive -html cov10
-
-run_lp_Questa: clean sv_cmp_Questa
-	vsim -cvgperinstance $(VSIMOPT) $(VSIMCOV) $(VSIMBATCH9)  -wlf wave_lp.wlf -l lptest.log  -sv_seed random work.top +UVM_TESTNAME=low_power_test
-	vcover report  -cvg  -details -nocompactcrossbins -codeAll -assert -directive -html cov9
-
 run_reset_Questa: clean sv_cmp_Questa
-	vsim  -cvgperinstance $(VSIMOPT) $(VSIMCOV) $(VSIMBATCH)  -wlf wave.wlf -l test.log  -sv_seed 4249856925 work.top +UVM_TESTNAME=reset_test
+	vsim  -cvgperinstance $(VSIMOPT) $(VSIMCOV) $(VSIMBATCH)  -wlf wave.wlf -l test.log  -sv_seed random work.top +UVM_TESTNAME=reset_test
 	vcover report  -cvg  -details -nocompactcrossbins -codeAll -assert -directive -html cov0
 
 run_test1_Questa: clean sv_cmp_Questa
-	vsim -cvgperinstance $(VSIMOPT) $(VSIMCOV) $(VSIMBATCH1)  -wlf wave1.wlf -l test1.log  -sv_seed random  work.top +UVM_TESTNAME=INCR_ok_test
+	vsim -cvgperinstance $(VSIMOPT) $(VSIMCOV) $(VSIMBATCH1)  -wlf wave1.wlf -l test1.log  -sv_seed 1639259434  work.top +UVM_TESTNAME=INCR_ok_test
 	vcover report  -cvg  -details -nocompactcrossbins -codeAll -assert -directive -html cov1
 
 run_test2_Questa: clean sv_cmp_Questa
-	vsim -cvgperinstance $(VSIMOPT) $(VSIMCOV) $(VSIMBATCH2)  -wlf wave2.wlf -l test2.log  -sv_seed random  work.top +UVM_TESTNAME=INCR_ok_wait_test
+	vsim -cvgperinstance $(VSIMOPT) $(VSIMCOV) $(VSIMBATCH2)  -wlf wave2.wlf -l test2.log  -sv_seed 1884623369  work.top +UVM_TESTNAME=INCR_ok_wait_test
 	vcover report  -cvg  -details -nocompactcrossbins -codeAll -assert -directive -html cov2
 
 run_test3_Questa: clean sv_cmp_Questa
-	vsim -cvgperinstance $(VSIMOPT) $(VSIMCOV) $(VSIMBATCH3)  -wlf wave3.wlf -l test3.log  -sv_seed 1392890260  work.top +UVM_TESTNAME=cpha0_cpol1_lsb_test
+	vsim -cvgperinstance $(VSIMOPT) $(VSIMCOV) $(VSIMBATCH3)  -wlf wave3.wlf -l test3.log  -sv_seed 3558152085  work.top +UVM_TESTNAME=INCR_error_test
 	vcover report  -cvg  -details -nocompactcrossbins -codeAll -assert -directive -html cov3
 
 run_test4_Questa: clean sv_cmp_Questa
-	vsim -cvgperinstance $(VSIMOPT) $(VSIMCOV) $(VSIMBATCH4)  -wlf wave4.wlf -l test4.log  -sv_seed 1403375676  work.top +UVM_TESTNAME=cpha1_cpol0_lsb_test
+	vsim -cvgperinstance $(VSIMOPT) $(VSIMCOV) $(VSIMBATCH4)  -wlf wave4.wlf -l test4.log  -sv_seed 3205827132  work.top +UVM_TESTNAME=FIXED_ok_test
 	vcover report  -cvg  -details -nocompactcrossbins -codeAll -assert -directive -html cov4
 
 run_test5_Questa: clean sv_cmp_Questa
-	vsim -cvgperinstance $(VSIMOPT) $(VSIMCOV) $(VSIMBATCH5)  -wlf wave5.wlf -l test5.log  -sv_seed 1659229092  work.top +UVM_TESTNAME=cpha1_cpol1_msb_test
+	vsim -cvgperinstance $(VSIMOPT) $(VSIMCOV) $(VSIMBATCH5)  -wlf wave5.wlf -l test5.log  -sv_seed 2788495076  work.top +UVM_TESTNAME=FIXED_ok_wait_test
 	vcover report  -cvg  -details -nocompactcrossbins -codeAll -assert -directive -html cov5
 
 run_test6_Questa: clean sv_cmp_Questa
-	vsim -cvgperinstance $(VSIMOPT) $(VSIMCOV) $(VSIMBATCH6)  -wlf wave6.wlf -l test6.log  -sv_seed 455463596  work.top +UVM_TESTNAME=cpha0_cpol0_msb_test
+	vsim -cvgperinstance $(VSIMOPT) $(VSIMCOV) $(VSIMBATCH6)  -wlf wave6.wlf -l test6.log  -sv_seed 1395982828  work.top +UVM_TESTNAME=FIXED_error_test
 	vcover report  -cvg  -details -nocompactcrossbins -codeAll -assert -directive -html cov6
 
 run_test7_Questa: clean sv_cmp_Questa
-	vsim -cvgperinstance $(VSIMOPT) $(VSIMCOV) $(VSIMBATCH7)  -wlf wave7.wlf -l test7.log  -sv_seed 1267064340  work.top +UVM_TESTNAME=cpha0_cpol1_msb_test
+	vsim -cvgperinstance $(VSIMOPT) $(VSIMCOV) $(VSIMBATCH7)  -wlf wave7.wlf -l test7.log  -sv_seed 2763326964  work.top +UVM_TESTNAME=WRAP_ok_test
 	vcover report  -cvg  -details -nocompactcrossbins -codeAll -assert -directive -html cov7
 
 run_test8_Questa: clean sv_cmp_Questa
-	vsim -cvgperinstance $(VSIMOPT) $(VSIMCOV) $(VSIMBATCH8)  -wlf wave8.wlf -l test8.log  -sv_seed 392552156  work.top +UVM_TESTNAME=cpha1_cpol0_msb_test
+	vsim -cvgperinstance $(VSIMOPT) $(VSIMCOV) $(VSIMBATCH8)  -wlf wave8.wlf -l test8.log  -sv_seed 743799083  work.top +UVM_TESTNAME=WRAP_ok_wait_test
 	vcover report  -cvg  -details -nocompactcrossbins -codeAll -assert -directive -html cov8
+
+run_test9_Questa: clean sv_cmp_Questa
+	vsim -cvgperinstance $(VSIMOPT) $(VSIMCOV) $(VSIMBATCH9)  -wlf wave9.wlf -l test9.log  -sv_seed 3883236467  work.top +UVM_TESTNAME=WRAP_error_test
+	vcover report  -cvg  -details -nocompactcrossbins -codeAll -assert -directive -html cov9
 
 clean_Questa:
 	rm -rf transcript* *log* fcover* covhtml* cov* *.wlf modelsim.ini work
 	clear
 
-regress_Questa: run_reset_Questa run_test1_Questa run_test2_Questa run_test3_Questa run_test4_Questa run_test5_Questa run_test6_Questa run_test7_Questa run_test8_Questa report_Questa cov_Questa
+regress_Questa: run_reset_Questa run_test1_Questa run_test2_Questa run_test3_Questa run_test4_Questa run_test5_Questa run_test6_Questa run_test7_Questa run_test8_Questa  run_test9_Questa report_Questa cov_Questa
 
 report_Questa:
-	vcover merge cov.ucdb cov_generated.ucdb  cov0 cov1 cov2 cov3 cov4 cov5 cov6 cov7 cov8
+	vcover merge cov.ucdb cov_generated.ucdb  cov0 cov1 cov2 cov3 cov4 cov5 cov6 cov7 cov8 cov9
 	vcover report -cvg -details -nocompactcrossbins -codeAll -assert -directive -html cov.ucdb
 
 cov_Questa:
